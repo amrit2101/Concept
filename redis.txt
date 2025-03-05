@@ -1,0 +1,837 @@
+🔹 Redis: High-Performance In-Memory Data Store
+
+
+Redis (Remote Dictionary Server) is an open-source, in-memory key-value store that provides blazing-fast performance for various use cases such as caching, real-time analytics, pub/sub messaging, and session storage.
+Redis is an open-source, in-memory database that can be used as a cache, message broker, or database. It's known for its speed, reliability, and performance.
+Redis supports complex data types like strings, hashes, lists, sets, and JSON. 
+Redis can be used as a cache, vector database, document database, streaming engine, and message broker. 
+
+
+Redis Use Cases
+Caching – Store frequently accessed data to reduce DB load.
+Session Storage – Store user sessions for web applications.
+Rate Limiting – Control API request limits efficiently.
+Leaderboards & Ranking – Use Sorted Sets to rank items.
+Message Queue – Use Redis pub/sub for event-driven messaging.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+🔧 Redis Integration in Spring Boot
+Let's integrate Redis into a Spring Boot application for caching.
+
+1️⃣ Add Redis Dependency
+If you're using Maven, add the following to your pom. :
+
+ 
+ 
+ 
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+For Gradle, add this:
+
+gradle
+ 
+ 
+implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+2️⃣ Configure Redis in application.properties
+properties
+ 
+ 
+spring.redis.host=localhost
+spring.redis.port=6379
+If Redis requires authentication:
+
+properties
+ 
+ 
+spring.redis.password=your_redis_password
+3️⃣ Create a Redis Configuration Class
+java
+ 
+ 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+@Configuration
+public class RedisConfig {
+
+    @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory();
+    }
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        return template;
+    }
+}
+4️⃣ Using Redis for Caching
+Enable Caching in Spring Boot
+java
+ 
+ 
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@EnableCaching
+public class CacheConfig {
+}
+Using Redis Cache in a Service
+java
+ 
+ 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserService {
+
+    @Cacheable(value = "users", key = "#userId")
+    public String getUserById(String userId) {
+        System.out.println("Fetching user from database...");
+        return "User_" + userId;
+    }
+}
+✅ First call → Data is fetched from the database.
+✅ Subsequent calls → Data is retrieved from Redis (fast).
+
+5️⃣ Store & Retrieve Data with RedisTemplate
+java
+ 
+ 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
+
+@Service
+public class RedisService {
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    public void saveToRedis(String key, Object value, long timeout) {
+        redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.MINUTES);
+    }
+
+    public Object getFromRedis(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    public void deleteFromRedis(String key) {
+        redisTemplate.delete(key);
+    }
+}
+6️⃣ Running Redis Locally
+
+brew install redis
+brew services start redis
+Using Redis CLI:
+redis-cli
+127.0.0.1:6379> SET user:101 "John Doe"
+127.0.0.1:6379> GET user:101
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Persistence Mechanisms (Data is Safe 🛡️)
+Redis supports two main types of data persistence:
+✔️ RDB (Redis Database Backup):
+
+Takes snapshots of the dataset at specific intervals.
+Optimized for performance but may lose recent data on crash.
+✔️ AOF (Append-Only File):
+
+Logs every write operation.
+Ensures no data loss but uses more disk space.
+💡 Hybrid Approach – You can enable both RDB & AOF for best performance and reliability.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Advanced Data Structures (More than Just Key-Value 📊)
+Unlike simple key-value stores, Redis supports multiple data types:
+
+Data Type	Description	Example
+String	Simple text or binary data	"name" -> "Alice"
+List	Ordered list of elements	["task1", "task2"]
+Set	Unordered unique elements	{"apple", "banana"}
+Sorted Set	Ordered unique elements	{"Alice": 100, "Bob": 90}
+Hash	Key-value pairs inside a key	"user:1" -> {"name": "John", "age": 30}
+Bitmaps	Efficient binary storage	Used for tracking user activity
+HyperLogLogs	Approximate cardinality estimation	Used for counting unique visitors
+Streams	Log-based messaging	Used for event-driven processing
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+📌 Installing & Running Redis on macOS ( )
+🔹 Step 1: Install Redis
+ 
+ 
+ 
+brew install redis
+✅ Installs Redis using Homebrew.
+
+🔹 Step 2: Start Redis
+ 
+ 
+ 
+brew services start redis
+✅ Runs Redis as a background service.
+
+🔹 Step 3: Verify Redis is Running
+ 
+ 
+ 
+redis-cli ping
+✅ Should return PONG if Redis is running.
+
+🔹 Step 4: Stop Redis
+ 
+ 
+ 
+brew services stop redis
+✅ Stops the Redis server.
+
+🔹 Step 5: Restart Redis
+ 
+ 
+ 
+brew services restart redis
+✅ Restarts Redis.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Redis Sentinel vs Redis Cluster 🚀
+Both Redis Sentinel and Redis Cluster are used for high availability and scalability in Redis, but they serve different purposes.
+
+🔴 Redis Sentinel
+Used for: High Availability & Automatic Failover
+
+What is Redis Sentinel?
+Redis Sentinel provides monitoring, failover, and notification services for Redis.
+It helps in automatic failover when the master goes down.
+Sentinel does not provide sharding (horizontal scaling).
+How It Works:
+Multiple Sentinel instances monitor the Redis master and replicas.
+If the master fails, Sentinel promotes a replica to master.
+Sentinels inform Redis clients about the new master.
+Supports automatic failover and notification.
+Architecture:
+pgsql
+ 
+ 
+       ┌─────────────┐
+       │  Client     │
+       └─────────────┘
+             │
+   ┌──────────────────┐
+   │ Redis Sentinel   │  (Monitors Redis instances)
+   └──────────────────┘
+             │
+ ┌─────────────────────┐
+ │ Master (Redis Node) │
+ └─────────────────────┘
+     │          │
+     ▼          ▼
+ ┌───────┐  ┌───────┐
+ │Replica│  │Replica│
+ └───────┘  └───────┘
+Key Features of Redis Sentinel
+✅ Automatic Failover – Promotes a replica to master if the master fails.
+✅ Monitoring – Keeps track of master and replicas.
+✅ Notification – Notifies administrators or applications.
+✅ No Data Sharding – It only handles failover, not distribution of data.
+
+🟢 Redis Cluster
+Used for: Horizontal Scaling & High Availability
+
+What is Redis Cluster?
+Redis Cluster enables sharding (splitting data across multiple nodes).
+Provides automatic failover like Sentinel.
+Supports multiple masters (each with replicas).
+Ensures high availability and load balancing.
+How It Works:
+Data is partitioned across multiple master nodes.
+Each master node has replica nodes for failover.
+Uses hash slots (0-16383) to distribute data.
+If a master fails, a replica is promoted.
+Architecture:
+pgsql
+ 
+ 
+       ┌─────────────┐
+       │  Client     │
+       └─────────────┘
+             │
+  ┌─────────────────────────┐
+  │   Redis Cluster         │
+  └─────────────────────────┘
+      │        │        │
+ ┌────────┐ ┌────────┐ ┌────────┐
+ │Master 1│ │Master 2│ │Master 3│
+ └────────┘ └────────┘ └────────┘
+      │        │        │
+ ┌───────┐ ┌───────┐ ┌───────┐
+ │Replica│ │Replica│ │Replica│
+ └───────┘ └───────┘ └───────┘
+Key Features of Redis Cluster
+✅ Automatic Failover – If a master fails, a replica is promoted.
+✅ Sharding (Horizontal Scaling) – Distributes data across multiple masters.
+✅ No Central Coordinator – Each node knows about the cluster state.
+✅ Load Balancing – Data is spread across nodes, improving performance.
+✅ Clients Must Support Cluster Mode – Some Redis clients need cluster support.
+
+🔄 When to Use What?
+Feature	Redis Sentinel 🛑	Redis Cluster 🟢
+High Availability	✅ Yes	✅ Yes
+Automatic Failover	✅ Yes	✅ Yes
+Sharding (Scaling)	❌ No	✅ Yes
+Multiple Masters	❌ No	✅ Yes
+Data Replication	✅ Yes	✅ Yes
+Consistency	✅ Strong	⚠️ Can be eventual (some data loss possible)
+Use Case	Failover & Monitoring	Large-scale distributed Redis
+🔥 Which One Should You Choose?
+👉 Use Redis Sentinel if:
+✔️ You have one master with replicas and need automatic failover.
+✔️ You don’t need sharding but want high availability.
+
+👉 Use Redis Cluster if:
+✔️ You need horizontal scaling (sharding across nodes).
+✔️ Your application must handle huge amounts of data.
+✔️ You need both high availability and performance.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Redis Sentinel & Cluster Implementation on macOS ( ) 🚀
+Let's set up Redis Sentinel (for high availability) and Redis Cluster (for sharding) on macOS with  .
+
+🔴 1. Install Redis on macOS
+Step 1: Install Redis using Homebrew
+ 
+ 
+ 
+brew update
+brew install redis
+Step 2: Verify Installation
+ 
+ 
+ 
+redis-server --version
+🔵 2. Redis Sentinel Setup (High Availability)
+📌 Goal:
+✅ Set up one Redis master and two replicas with Sentinel for automatic failover.
+
+Step 1: Start Redis Master & Replicas
+Open three separate terminal tabs and start three Redis instances.
+
+Start Master (Port 6379)
+ 
+ 
+ 
+redis-server --port 6379
+Start Replica 1 (Port 6380)
+ 
+ 
+ 
+redis-server --port 6380 --replicaof 127.0.0.1 6379
+Start Replica 2 (Port 6381)
+ 
+ 
+ 
+redis-server --port 6381 --replicaof 127.0.0.1 6379
+Step 2: Configure Redis Sentinel
+Create a sentinel.conf file:
+
+ 
+ 
+ 
+touch sentinel.conf
+nano sentinel.conf
+Paste the following:
+
+ini
+ 
+ 
+port 26379
+sentinel monitor mymaster 127.0.0.1 6379 2
+sentinel down-after-milliseconds mymaster 5000
+sentinel failover-timeout mymaster 60000
+sentinel parallel-syncs mymaster 1
+Step 3: Start Sentinel
+Run Sentinel in a new terminal:
+
+ 
+ 
+ 
+redis-server sentinel.conf --sentinel
+Step 4: Test Sentinel Failover
+Check Sentinel status:
+ 
+ 
+ 
+redis-cli -p 26379 info Sentinel
+Stop the master:
+ 
+ 
+ 
+redis-cli -p 6379 shutdown
+Sentinel will promote a replica to master automatically ✅.
+Restart Redis and check the new master:
+ 
+ 
+ 
+redis-cli -p 26379 sentinel get-master-addr-by-name mymaster
+🟢 3. Redis Cluster Setup (Sharding & High Availability)
+📌 Goal:
+✅ Set up a Redis Cluster with 3 Masters and 3 Replicas.
+
+Step 1: Start Redis Cluster Nodes
+Run 6 Redis instances in different terminals:
+
+ 
+ 
+ 
+redis-server --port 7000 --cluster-enabled yes --cluster-config-file nodes-7000.conf --appendonly yes
+redis-server --port 7001 --cluster-enabled yes --cluster-config-file nodes-7001.conf --appendonly yes
+redis-server --port 7002 --cluster-enabled yes --cluster-config-file nodes-7002.conf --appendonly yes
+redis-server --port 7003 --cluster-enabled yes --cluster-config-file nodes-7003.conf --appendonly yes
+redis-server --port 7004 --cluster-enabled yes --cluster-config-file nodes-7004.conf --appendonly yes
+redis-server --port 7005 --cluster-enabled yes --cluster-config-file nodes-7005.conf --appendonly yes
+Step 2: Create the Redis Cluster
+Use redis-cli to create the cluster:
+
+ 
+ 
+ 
+redis-cli --cluster create 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 --cluster-replicas 1
+Explanation:
+
+7000, 7001, 7002 → Master Nodes
+7003, 7004, 7005 → Replica Nodes
+Press yes (y) to confirm.
+
+Step 3: Verify Redis Cluster
+Check cluster info:
+
+ 
+ 
+ 
+redis-cli -c -p 7000 cluster info
+View nodes:
+
+ 
+ 
+ 
+redis-cli -c -p 7000 cluster nodes
+Step 4: Test Redis Cluster
+Add data:
+ 
+ 
+ 
+redis-cli -c -p 7000 set user:1 "Alice"
+redis-cli -c -p 7001 get user:1
+Check data distribution:
+ 
+ 
+ 
+redis-cli -c -p 7000 keys *
+redis-cli -c -p 7001 keys *
+🚀 Conclusion
+✅ Redis Sentinel → High Availability (Failover).
+✅ Redis Cluster → High Availability + Sharding.
+
+Would you like a Docker setup or code integration example? 😊
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+@Cacheable is a Spring Framework annotation used to enable caching in a Java application. It helps improve performance by storing method return values in a cache so that subsequent calls with the same parameters return the cached result instead of executing the method again.
+
+How @Cacheable Works
+When a method annotated with @Cacheable is called, Spring checks if the result for the given arguments is already in the cache.
+If a cached result exists, it is returned directly without executing the method.
+If no cached result is found, the method executes, and the returned value is stored in the cache.
+Future calls with the same arguments will return the cached result.
+Example Usage
+Basic Example
+java
+ 
+ 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ProductService {
+
+    @Cacheable("products")
+    public Product getProductById(Long id) {
+        System.out.println("Fetching product from database...");
+        return new Product(id, "Laptop", 75000);
+    }
+}
+💡 Explanation:
+
+The method getProductById caches the result in the cache named "products".
+The first time getProductById(1L) is called, the method executes.
+The second time getProductById(1L) is called with the same ID, the cached result is returned, avoiding a database call.
+Customizing @Cacheable
+Specifying Cache Name
+You can specify multiple caches:
+
+java
+ 
+ 
+@Cacheable({"products", "items"})
+This means the method result is stored in both "products" and "items" caches.
+
+Using Key Parameter
+You can specify a custom cache key:
+
+java
+ 
+ 
+@Cacheable(value = "products", key = "#id")
+public Product getProductById(Long id) { ... }
+You can also use SpEL (Spring Expression Language) to create complex keys:
+
+java
+ 
+ 
+@Cacheable(value = "products", key = "#product.id + '-' + #product.name")
+Conditionally Caching Results
+Use condition to cache only specific results:
+
+java
+ 
+ 
+@Cacheable(value = "products", condition = "#id > 10")
+public Product getProductById(Long id) { ... }
+This caches only if id > 10.
+
+Caching Only Non-Null Results
+java
+ 
+ 
+@Cacheable(value = "products", unless = "#result == null")
+public Product getProductById(Long id) { ... }
+This prevents caching null values.
+
+When to Use @Cacheable?
+✅ When fetching frequently accessed data (e.g., database queries).
+✅ When the method returns the same result for the same parameters.
+✅ When improving performance by reducing redundant computations.
+
+⚠️ Avoid using caching for:
+❌ Methods with frequently changing results.
+❌ Methods with side effects (e.g., modifying a database).
+
+How to Enable Caching in Spring?
+To use caching, enable it in your Spring Boot application:
+
+java
+ 
+ 
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@EnableCaching
+public class CacheConfig {
+}
+This activates Spring’s caching support.
+
+Clearing the Cache
+Use @CacheEvict to remove cached data:
+
+java
+ 
+ 
+@CacheEvict(value = "products", key = "#id")
+public void removeProduct(Long id) { ... }
+Use allEntries = true to clear the entire cache:
+
+java
+ 
+ 
+@CacheEvict(value = "products", allEntries = true)
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+LettuceConnectionFactory in Spring Boot
+LettuceConnectionFactory is a Redis connection factory in Spring Data Redis that provides a connection to a Redis database using the Lettuce Redis client. It is commonly used in Spring Boot applications for caching, messaging, and data storage.
+
+Key Features of LettuceConnectionFactory
+✔ Non-blocking & Reactive – Supports asynchronous and reactive programming.
+✔ Thread-safe – Uses a single connection for multiple operations.
+✔ Cluster & Sentinel Support – Works with Redis Sentinel and Redis Cluster.
+✔ SSL & Authentication – Supports Redis authentication and SSL/TLS.
+
+Spring Boot supports both Lettuce and Jedis as Redis clients.
+
+
+Feature	Lettuce	Jedis
+Architecture	Non-blocking (Netty)	Blocking (Direct Sockets)
+Thread-Safety	✅ Yes (Single Connection, Thread-safe)	❌ No (Each thread needs its own connection)
+Performance	✅ Better for high concurrency	🚀 Fast for single-threaded workloads
+Reactive Support	✅ Yes (Supports Project Reactor)	❌ No (Only synchronous)
+Cluster Support	✅ Yes (Automatic topology refresh)	✅ Yes (Manual setup required)
+Spring Boot Default	✅ Yes (Spring Boot 2.x+)	❌ No (Was default in Spring Boot 1.x)
+
+Lettuce is preferred for most Spring Boot applications due to its non-blocking, scalable nature.
+
+Jedis is an older, synchronous, and thread-unsafe Redis client. It uses direct socket connections instead of Netty.
+
+✅ Key Features of Jedis
+✔ Easy to Use – Simple API for interacting with Redis.
+✔ Fast for Single-Threaded Use – Works well for basic applications.
+✔ Supports Pipelining & Transactions – Allows batch operations.
+✔ Cluster & Sentinel Support – Works with Redis Cluster & Sentinel.
+
+
+Use Jedis Instead of Lettuce
+To use Jedis, add the following dependency:
+
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>io.lettuce.core</groupId>
+            <artifactId>lettuce-core</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+
+<dependency>
+    <groupId>redis.clients</groupId>
+    <artifactId>jedis</artifactId>
+</dependency>
+Then, configure JedisConnectionFactory:
+
+ 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+
+@Configuration
+public class RedisConfig {
+
+    @Bean
+    public JedisConnectionFactory jedisConnectionFactory() {
+        return new JedisConnectionFactory();
+    }
+}
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+📌 1️⃣ Implementing Pub/Sub Messaging in Redis with Spring Boot
+🔹 What is Redis Pub/Sub?
+Redis Publish/Subscribe (Pub/Sub) is a messaging pattern where:
+
+Publishers send messages to channels.
+Subscribers listen for messages from those channels.
+🔹 Key Advantages
+✅ Real-time messaging
+✅ Decoupled architecture
+✅ High throughput
+
+🛠️ Implementing Redis Pub/Sub in Spring Boot
+🔹 Step 1: Add Dependencies
+xml
+ 
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+🔹 Step 2: Configure Redis in application.yml
+ 
+ 
+spring:
+  redis:
+    host: localhost
+    port: 6379
+🔹 Step 3: Create a Message Publisher
+ 
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+public class RedisMessagePublisher {
+
+    private final StringRedisTemplate redisTemplate;
+
+    public RedisMessagePublisher(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
+    public void publishMessage(String channel, String message) {
+        redisTemplate.convertAndSend(channel, message);
+        System.out.println("📨 Message published to channel " + channel + ": " + message);
+    }
+}
+✅ Uses convertAndSend() to publish messages.
+
+🔹 Step 4: Create a Message Listener
+ 
+import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.stereotype.Service;
+
+@Service
+public class RedisMessageSubscriber implements MessageListener {
+
+    @Override
+    public void onMessage(Message message, byte[] pattern) {
+        System.out.println("📩 Received message: " + message.toString());
+    }
+}
+✅ Implements MessageListener to listen for messages.
+
+🔹 Step 5: Configure Pub/Sub in Spring Boot
+ 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+
+@Configuration
+public class RedisConfig {
+
+    @Bean
+    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(new MessageListenerAdapter(new RedisMessageSubscriber()), new ChannelTopic("chat"));
+        return container;
+    }
+
+    @Bean
+    public ChannelTopic topic() {
+        return new ChannelTopic("chat");
+    }
+}
+✅ Registers the subscriber and binds it to the channel.
+
+🔹 Step 6: Test Pub/Sub Messaging
+Run the Publisher
+ 
+@RestController
+@RequestMapping("/publish")
+public class PubSubController {
+
+    private final RedisMessagePublisher publisher;
+
+    public PubSubController(RedisMessagePublisher publisher) {
+        this.publisher = publisher;
+    }
+
+    @PostMapping("/{message}")
+    public ResponseEntity<String> sendMessage(@PathVariable String message) {
+        publisher.publishMessage("chat", message);
+        return ResponseEntity.ok("Message published!");
+    }
+}
+✅ Send a message using:
+
+ 
+curl -X POST "http://localhost:8080/publish/HelloRedis"
+✅ Subscribers receive:
+
+ 
+ 
+📩 Received message: HelloRedis
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+📌 2️⃣ Implementing Rate Limiting with Redis & Spring Boot
+🔹 What is Rate Limiting?
+Rate Limiting controls how many requests a client can make within a given time window.
+
+🔹 Use Cases
+✅ Prevent API abuse
+✅ Avoid overloading servers
+✅ Ensure fair usage
+
+🛠️ Implementing Rate Limiting in Spring Boot
+🔹 Step 1: Create a Redis Service for Rate Limiting
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+
+@Service
+public class RateLimiterService {
+
+    private final RedisTemplate<String, String> redisTemplate;
+    private static final int MAX_REQUESTS = 5; // Max 5 requests
+    private static final int TIME_WINDOW = 60; // 60 seconds
+
+    public RateLimiterService(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
+    public boolean isAllowed(String userId) {
+        String key = "rate_limit:" + userId;
+        Long currentRequests = redisTemplate.opsForValue().increment(key, 1);
+
+        if (currentRequests == 1) {
+            redisTemplate.expire(key, TIME_WINDOW, TimeUnit.SECONDS);
+        }
+
+        return currentRequests <= MAX_REQUESTS;
+    }
+}
+✅ Uses Redis to count requests.
+✅ If it’s the first request, sets an expiry of 60s.
+✅ Rejects requests after 5 attempts.
+
+🔹 Step 2: Create a Rate-Limited API Endpoint
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api")
+public class RateLimitController {
+
+    private final RateLimiterService rateLimiterService;
+
+    public RateLimitController(RateLimiterService rateLimiterService) {
+        this.rateLimiterService = rateLimiterService;
+    }
+
+    @GetMapping("/data/{userId}")
+    public ResponseEntity<String> getData(@PathVariable String userId) {
+        if (!rateLimiterService.isAllowed(userId)) {
+            return ResponseEntity.status(429).body("Too many requests. Please wait.");
+        }
+        return ResponseEntity.ok("✅ Allowed: Here is your data!");
+    }
+}
+✅ Returns 429 Too Many Requests if the limit exceeds.
+
+
+
+
+
+
+
