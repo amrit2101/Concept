@@ -1,0 +1,2356 @@
+🔹 What is OpenSearch?
+OpenSearch is an open-source, distributed search and analytics engine, originally derived from Elasticsearch 7.10 after Elasticsearch moved to a proprietary license. It is designed for log analytics, full-text search, security monitoring, and observability.
+
+It provides scalability, real-time search, and analytics while supporting structured and unstructured data.
+
+🔹 Key Features of OpenSearch
+1️⃣ Full-Text Search
+Uses inverted indexes for fast search across large text datasets.
+Supports fuzzy search, phrase search, wildcard search, and more.
+2️⃣ Distributed Architecture
+Cluster-based system with horizontal scalability.
+Supports sharding and replication to distribute data across multiple nodes.
+3️⃣ RESTful API
+Fully compatible with Elasticsearch 7.10 APIs.
+Allows CRUD operations, searching, aggregations, and indexing via HTTP.
+4️⃣ Aggregations & Analytics
+Supports bucket-based aggregations (terms, histogram, range, filters, etc.).
+Metric aggregations like average, min, max, sum, percentiles.
+Useful for analytics dashboards and reporting.
+5️⃣ Security & Access Control
+Role-based access control (RBAC) and document-level security.
+TLS encryption for securing data in transit.
+Supports OIDC, LDAP, and SAML authentication.
+6️⃣ Machine Learning & Anomaly Detection
+Built-in anomaly detection using ML models.
+Pattern recognition for fraud detection, intrusion detection, etc.
+7️⃣ Observability (Logs, Metrics, Tracing)
+Integrates with Prometheus, OpenTelemetry, and Fluentd.
+Helps in monitoring system health, tracing transactions, and log analysis.
+8️⃣ OpenDashboards (Kibana Alternative)
+OpenSearch comes with OpenSearch Dashboards (similar to Kibana).
+Allows custom visualizations and interactive reports.
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+What is a Document in OpenSearch? 🚀
+In OpenSearch, a document is the basic unit of data storage, similar to a row in a relational database.
+
+📌 Key Points About OpenSearch Documents
+Stored in an Index – Each document belongs to an index (similar to a table in SQL).
+JSON Format – Documents are stored as JSON objects.
+Schema-less – OpenSearch does not require a predefined schema (it can dynamically map fields).
+Each Document Has a Unique _id – Used for retrieval and updates.
+Full-Text Searchable – Documents are indexed for fast searching.
+🔹 Example of a Document in OpenSearch
+A document for a product catalog might look like this:
+
+ 
+{
+  "product_id": "12345",
+  "name": "Wireless Mouse",
+  "brand": "Logitech",
+  "price": 29.99,
+  "category": "Electronics",
+  "in_stock": true
+}
+🔍 Storing a Document in OpenSearch
+You can use the Index API to store a document.
+
+📌 Example: Adding a Document
+Use PUT or POST request:
+
+ 
+PUT opensearch_host:9200/products/_doc/12345
+With JSON body:
+
+ 
+{
+  "product_id": "12345",
+  "name": "Wireless Mouse",
+  "brand": "Logitech",
+  "price": 29.99,
+  "category": "Electronics",
+  "in_stock": true
+}
+📝 Retrieving a Document
+To get a document by its _id:
+
+ 
+GET opensearch_host:9200/products/_doc/12345
+🔹 Response:
+
+ 
+{
+  "_index": "products",
+  "_id": "12345",
+  "_source": {
+    "product_id": "12345",
+    "name": "Wireless Mouse",
+    "brand": "Logitech",
+    "price": 29.99,
+    "category": "Electronics",
+    "in_stock": true
+  }
+}
+📝 Updating a Document
+To partially update a document:
+
+ 
+POST opensearch_host:9200/products/_update/12345
+With:
+
+ 
+{
+  "doc": {
+    "price": 24.99
+  }
+}
+🗑️ Deleting a Document
+ 
+DELETE opensearch_host:9200/products/_doc/12345
+🚀 Summary
+Feature	Description
+Structure	JSON object
+Stored in	An index
+Schema	Dynamic (schema-less)
+Unique Identifier	_id
+Searchable	Yes, via full-text search
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+📌 Creating Sample Data in OpenSearch
+Index Name: products
+We'll store product-related data in OpenSearch.
+
+Index Mapping (Schema)
+Each document in the index has:
+
+id (Unique identifier)
+name (Text field for full-text search)
+category (Keyword field for filtering)
+price (Numeric field for range queries)
+stock (Numeric field)
+created_at (Date field)
+tags (Array field)
+location (Geo point for location-based queries)
+ 
+PUT localhost:9200/products
+{
+  "mappings": {
+    "properties": {
+      "name": { "type": "text" },
+      "category": { "type": "keyword" },
+      "price": { "type": "double" },
+      "stock": { "type": "integer" },
+      "created_at": { "type": "date" },
+      "tags": { "type": "keyword" },
+      "location": { "type": "geo_point" }
+    }
+  }
+}
+📌 Sample Data (Adding Products)
+Let's add some products to the products index.
+
+ 
+POST localhost:9200/products/_bulk
+{ "index": { "_id": "1" } }
+{ "name": "Apple iPhone 13", "category": "smartphone", "price": 799.99, "stock": 50, "created_at": "2024-03-01", "tags": ["apple", "ios", "5g"], "location": { "lat": 37.7749, "lon": -122.4194 } }
+{ "index": { "_id": "2" } }
+{ "name": "Samsung Galaxy S23", "category": "smartphone", "price": 699.99, "stock": 40, "created_at": "2024-02-15", "tags": ["samsung", "android", "5g"], "location": { "lat": 40.7128, "lon": -74.0060 } }
+{ "index": { "_id": "3" } }
+{ "name": "Dell XPS 15", "category": "laptop", "price": 1499.99, "stock": 20, "created_at": "2024-01-10", "tags": ["dell", "windows", "laptop"], "location": { "lat": 34.0522, "lon": -118.2437 } }
+{ "index": { "_id": "4" } }
+{ "name": "Sony WH-1000XM5", "category": "headphones", "price": 399.99, "stock": 30, "created_at": "2024-01-25", "tags": ["sony", "noise-canceling", "bluetooth"], "location": { "lat": 51.5074, "lon": -0.1278 } }
+{ "index": { "_id": "5" } }
+{ "name": "Logitech MX Master 3", "category": "accessories", "price": 99.99, "stock": 60, "created_at": "2024-03-05", "tags": ["logitech", "mouse", "wireless"], "location": { "lat": 48.8566, "lon": 2.3522 } }
+✅ Now our products index is ready! We will use this dataset for various query types.
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🔹 Step 2: Basic Term-Level Queries
+Term queries are used for exact matching. Unlike full-text queries, they do not analyze text (e.g., no stemming or tokenization).
+
+📌 1. Term Query
+Find products where category is "smartphone".
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "term": {
+      "category": "smartphone"
+    }
+  }
+}
+🔍 Expected Result
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "1", "_source": { "name": "Apple iPhone 13", "category": "smartphone" }},
+      { "_id": "2", "_source": { "name": "Samsung Galaxy S23", "category": "smartphone" }}
+    ]
+  }
+}
+📌 2. Terms Query
+Find products where category is either "laptop" or "headphones".
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "terms": {
+      "category": ["laptop", "headphones"]
+    }
+  }
+}
+🔍 Expected Result
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "3", "_source": { "name": "Dell XPS 15", "category": "laptop" }},
+      { "_id": "4", "_source": { "name": "Sony WH-1000XM5", "category": "headphones" }}
+    ]
+  }
+}
+📌 3. Term Query on Numeric Fields
+Find products where price is exactly 99.99.
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "term": {
+      "price": 99.99
+    }
+  }
+}
+🔍 Expected Result
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "5", "_source": { "name": "Logitech MX Master 3", "price": 99.99 }}
+    ]
+  }
+}
+📌 4. Term Query on Array Fields
+Find products with the "5g" tag.
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "term": {
+      "tags": "5g"
+    }
+  }
+}
+🔍 Expected Result
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "1", "_source": { "name": "Apple iPhone 13", "tags": ["apple", "ios", "5g"] }},
+      { "_id": "2", "_source": { "name": "Samsung Galaxy S23", "tags": ["samsung", "android", "5g"] }}
+    ]
+  }
+}
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🔹 Step 3: Full-Text Search Queries
+Unlike Term Queries, which require exact matches, Full-Text Queries allow us to search within text fields. They analyze text using tokenization, stemming, and other text processing techniques.
+
+📌 1. Match Query
+🔍 Scenario: Search for products containing the word "iphone" in the name field.
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "match": {
+      "name": "iphone"
+    }
+  }
+}
+🔍 Expected Result
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "1", "_source": { "name": "Apple iPhone 13" } }
+    ]
+  }
+}
+✅ Explanation: The match query automatically tokenizes and analyzes the search term before searching.
+
+📌 2. Match Query with Multiple Words
+🔍 Scenario: Search for "Samsung phone". OpenSearch will analyze both words.
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "match": {
+      "name": "Samsung phone"
+    }
+  }
+}
+🔍 Expected Result
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "2", "_source": { "name": "Samsung Galaxy S23" } }
+    ]
+  }
+}
+✅ Explanation:
+
+OpenSearch tokenizes "Samsung phone" into "Samsung" and "phone".
+The product "Samsung Galaxy S23" is matched because it contains "Samsung".
+📌 3. Match Query with Custom Operator (AND vs OR)
+By default, OpenSearch uses OR, meaning at least one word should match.
+To require both words, use operator: "AND".
+
+🔍 Scenario: Search for "Samsung phone" and ensure both words are present.
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "Samsung phone",
+        "operator": "AND"
+      }
+    }
+  }
+}
+✅ If a product name doesn't contain both words, it won't appear.
+
+📌 4. Multi-Match Query (Search in Multiple Fields)
+🔍 Scenario: Search for "Dell laptop" in both name and category fields.
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "Dell laptop",
+      "fields": ["name", "category"]
+    }
+  }
+}
+✅ Explanation: Searches both fields and returns results where either field contains the words.
+
+📌 5. Match Phrase Query (Exact Phrase Search)
+🔍 Scenario: Find products that exactly match "Apple iPhone".
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "match_phrase": {
+      "name": "Apple iPhone"
+    }
+  }
+}
+✅ Explanation: Unlike match, this ensures "Apple iPhone" appears exactly in the same order.
+
+📌 6. Fuzzy Search (Handle Typos)
+🔍 Scenario: Search for "iphne" (misspelled "iPhone"), and OpenSearch should still find "iPhone".
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "iphne",
+        "fuzziness": "AUTO"
+      }
+    }
+  }
+}
+✅ Explanation:
+
+"AUTO" allows 1-2 character differences.
+"iphne" still finds "iPhone" because it allows minor spelling mistakes.
+📌 7. Wildcard Query
+🔍 Scenario: Find products where name starts with "Sam*".
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "wildcard": {
+      "name": "Sam*"
+    }
+  }
+}
+✅ Explanation:
+
+"Sam*" matches "Samsung Galaxy S23" because it starts with "Sam".
+🔹 Summary
+✔ Match Query – Searches words in analyzed text fields.
+✔ Multi-Match Query – Searches in multiple fields.
+✔ Match Phrase Query – Finds exact phrase matches.
+✔ Fuzzy Search – Allows typos and close matches.
+✔ Wildcard Query – Uses * for prefix search.
+
+📌 Next, we will cover Range Queries for filtering numeric and date fields. Let me know if you have any doubts before moving ahead! 🚀
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🔹 Step 4: Range Queries
+Range Queries help in filtering numeric fields, dates, and price ranges. These queries use:
+
+gt (greater than)
+gte (greater than or equal to)
+lt (less than)
+lte (less than or equal to)
+📌 1. Filtering Products by Price Range
+🔍 Scenario: Find products where price is between 100 and 800.
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "range": {
+      "price": {
+        "gte": 100,
+        "lte": 800
+      }
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "1", "_source": { "name": "Apple iPhone 13", "price": 799.99 }},
+      { "_id": "2", "_source": { "name": "Samsung Galaxy S23", "price": 699.99 }},
+      { "_id": "4", "_source": { "name": "Sony WH-1000XM5", "price": 399.99 }},
+      { "_id": "5", "_source": { "name": "Logitech MX Master 3", "price": 99.99 }}
+    ]
+  }
+}
+✅ Explanation:
+
+Finds products priced between $100 and $800.
+Products above 800 (Dell XPS 15 at $1499.99) are excluded.
+📌 2. Filtering Products by Stock Availability
+🔍 Scenario: Find products with stock greater than 30.
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "range": {
+      "stock": {
+        "gt": 30
+      }
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "1", "_source": { "name": "Apple iPhone 13", "stock": 50 }},
+      { "_id": "2", "_source": { "name": "Samsung Galaxy S23", "stock": 40 }},
+      { "_id": "5", "_source": { "name": "Logitech MX Master 3", "stock": 60 }}
+    ]
+  }
+}
+✅ Explanation:
+
+Products with stock ≤ 30 are excluded.
+📌 3. Filtering Products by Date Range
+🔍 Scenario: Find products added after 2024-02-01.
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "range": {
+      "created_at": {
+        "gte": "2024-02-01",
+        "format": "yyyy-MM-dd"
+      }
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "1", "_source": { "name": "Apple iPhone 13", "created_at": "2024-03-01" }},
+      { "_id": "2", "_source": { "name": "Samsung Galaxy S23", "created_at": "2024-02-15" }},
+      { "_id": "5", "_source": { "name": "Logitech MX Master 3", "created_at": "2024-03-05" }}
+    ]
+  }
+}
+✅ Explanation:
+
+Filters products created on or after February 1, 2024.
+📌 4. Filtering Products by Price (Only Above a Value)
+🔍 Scenario: Find premium products (price > $1000).
+
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "range": {
+      "price": {
+        "gt": 1000
+      }
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "3", "_source": { "name": "Dell XPS 15", "price": 1499.99 }}
+    ]
+  }
+}
+✅ Explanation:
+
+Only Dell XPS 15 ($1499.99) appears.
+Other products below $1000 are excluded.
+🔹 Summary
+✔ Range Queries help in filtering prices, dates, stock, and more.
+✔ Supports greater than (gt), less than (lt), greater than or equal (gte), and less than or equal (lte).
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🔹 Step 5: Compound Queries
+Compound Queries combine multiple queries to create advanced search conditions.
+They use Boolean logic (must, should, must_not, filter) to refine results.
+
+📌 1. Boolean Query (bool)
+🔍 Scenario:
+
+Find products with "iPhone" in the name
+AND price is below $1000
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "name": "iphone" }},
+        { "range": { "price": { "lt": 1000 }}}
+      ]
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "1", "_source": { "name": "Apple iPhone 13", "price": 799.99 }}
+    ]
+  }
+}
+✅ Explanation:
+
+The must clause requires both conditions to be true.
+📌 2. must_not (Exclusion)
+🔍 Scenario:
+
+Find products with "Samsung" in the name
+BUT exclude products with price above $800
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "bool": {
+      "must": { "match": { "name": "Samsung" }},
+      "must_not": { "range": { "price": { "gt": 800 }}}
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "2", "_source": { "name": "Samsung Galaxy S23", "price": 699.99 }}
+    ]
+  }
+}
+✅ Explanation:
+
+must_not excludes products priced above $800.
+📌 3. should (Optional Match, Boost Score)
+🔍 Scenario:
+
+Prefer products with "iPhone" in the name
+But also show any product priced below $500
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": { "name": "iPhone" }},
+        { "range": { "price": { "lt": 500 }}}
+      ]
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "hits": {
+    "hits": [
+      { "_id": "1", "_source": { "name": "Apple iPhone 13", "price": 799.99 }},
+      { "_id": "4", "_source": { "name": "Sony WH-1000XM5", "price": 399.99 }},
+      { "_id": "5", "_source": { "name": "Logitech MX Master 3", "price": 99.99 }}
+    ]
+  }
+}
+✅ Explanation:
+
+should means either condition can match.
+Results with "iPhone" will appear first (higher score).
+📌 4. filter (Faster than must)
+🔍 Scenario:
+
+Find products with "Samsung" in the name
+AND price is below $1000
+Use filter (faster than must)
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "bool": {
+      "must": { "match": { "name": "Samsung" }},
+      "filter": { "range": { "price": { "lt": 1000 }}}
+    }
+  }
+}
+✅ Explanation:
+
+filter is faster than must because it does not affect relevance scoring.
+🔹 Summary
+✔ must – Both conditions must be true.
+✔ must_not – Exclude matching results.
+✔ should – Prefer results, but not mandatory.
+✔ filter – Like must, but faster because it skips scoring.
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+📌 1. Terms Aggregation (Group by a Field)
+🔍 Scenario: Count the number of products in each category.
+
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "size": 0,
+  "aggs": {
+    "categories_count": {
+      "terms": { "field": "category.keyword" }
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "aggregations": {
+    "categories_count": {
+      "buckets": [
+        { "key": "smartphones", "doc_count": 2 },
+        { "key": "laptops", "doc_count": 1 },
+        { "key": "headphones", "doc_count": 1 },
+        { "key": "accessories", "doc_count": 1 }
+      ]
+    }
+  }
+}
+✅ Explanation:
+
+Groups products by category and counts occurrences.
+The size: 0 means we don't want actual products, just aggregation results.
+
+
+Getting Both Aggregation Results & Actual Documents in OpenSearch
+By default, OpenSearch does not return both aggregations and document hits together. However, there are two approaches to achieve this:
+
+🔹 Approach 1: Use Separate Queries (Recommended)
+The most efficient way is to make two separate queries:
+
+One for aggregations (grouped data).
+One for actual documents (filtered based on aggregation).
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "size": 10,  # Get 10 actual documents along with aggregation
+  "query": {
+    "match_all": {}  # Adjust the query to filter documents if needed
+  },
+  "aggs": {
+    "categories_count": {
+      "terms": { "field": "category.keyword" }
+    }
+  }
+}
+🔍 Response:
+
+json
+ 
+{
+  "hits": {
+    "total": 4,
+    "hits": [
+      { "_source": { "product_id": "123", "name": "iPhone 13", "category": "smartphones" } },
+      { "_source": { "product_id": "456", "name": "MacBook Pro", "category": "laptops" } }
+    ]
+  },
+  "aggregations": {
+    "categories_count": {
+      "buckets": [
+        { "key": "smartphones", "doc_count": 2 },
+        { "key": "laptops", "doc_count": 1 }
+      ]
+    }
+  }
+}
+✅ This approach ensures performance optimization while retrieving both actual documents and aggregation data.
+
+🔹 Approach 2: Use a Composite Aggregation
+If you want both grouped data and individual documents in one query, use composite aggregations + top_hits.
+
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "size": 0,
+  "aggs": {
+    "categories_count": {
+      "terms": { "field": "category.keyword" },
+      "aggs": {
+        "top_documents": {
+          "top_hits": { "size": 3 }  # Get top 3 documents per category
+        }
+      }
+    }
+  }
+}
+🔍 Response:
+
+json
+ 
+{
+  "aggregations": {
+    "categories_count": {
+      "buckets": [
+        {
+          "key": "smartphones",
+          "doc_count": 2,
+          "top_documents": {
+            "hits": {
+              "hits": [
+                { "_source": { "product_id": "123", "name": "iPhone 13" } },
+                { "_source": { "product_id": "124", "name": "Samsung S22" } }
+              ]
+            }
+          }
+        },
+        {
+          "key": "laptops",
+          "doc_count": 1,
+          "top_documents": {
+            "hits": {
+              "hits": [
+                { "_source": { "product_id": "456", "name": "MacBook Pro" } }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+✅ This approach groups documents while returning sample products per category.
+
+🚀 Summary: Which Approach to Use?
+Approach	Use Case
+Separate Queries (Recommended)	Best for performance, fetch aggregation & documents separately.
+Composite Aggregation + top_hits	If you need grouped data and sample documents together in one request.
+
+📌 2. Range Aggregation (Group by Price Range)
+🔍 Scenario: Count products in different price ranges.
+
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "size": 0,
+  "aggs": {
+    "price_ranges": {
+      "range": {
+        "field": "price",
+        "ranges": [
+          { "to": 200 },        
+          { "from": 200, "to": 500 },
+          { "from": 500, "to": 1000 },
+          { "from": 1000 }      
+        ]
+      }
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "aggregations": {
+    "price_ranges": {
+      "buckets": [
+        { "key": "*-200.0", "doc_count": 1 },
+        { "key": "200.0-500.0", "doc_count": 1 },
+        { "key": "500.0-1000.0", "doc_count": 2 },
+        { "key": "1000.0-*", "doc_count": 1 }
+      ]
+    }
+  }
+}
+✅ Explanation:
+
+Groups products into price brackets.
+"1000.0-*" means products priced above $1000.
+📌 3. Stats Aggregation (Min, Max, Avg, Sum)
+🔍 Scenario: Get min, max, average, and total price of all products.
+
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "size": 0,
+  "aggs": {
+    "price_stats": {
+      "stats": { "field": "price" }
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "aggregations": {
+    "price_stats": {
+      "min": 99.99,
+      "max": 1499.99,
+      "avg": 699.99,
+      "sum": 3499.95
+    }
+  }
+}
+✅ Explanation:
+
+Gives minimum, maximum, average, and total price of products.
+📌 4. Nested Aggregation (Group + Stats)
+🔍 Scenario: Count products per category and find average price in each.
+
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "size": 0,
+  "aggs": {
+    "categories": {
+      "terms": { "field": "category.keyword" },
+      "aggs": {
+        "avg_price": { "avg": { "field": "price" } }
+      }
+    }
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "aggregations": {
+    "categories": {
+      "buckets": [
+        { "key": "smartphones", "doc_count": 2, "avg_price": { "value": 749.99 } },
+        { "key": "laptops", "doc_count": 1, "avg_price": { "value": 1499.99 } },
+        { "key": "headphones", "doc_count": 1, "avg_price": { "value": 399.99 } },
+        { "key": "accessories", "doc_count": 1, "avg_price": { "value": 99.99 } }
+      ]
+    }
+  }
+}
+✅ Explanation:
+
+Groups products by category and calculates the average price per category.
+🔹 Summary
+✔ Terms Aggregation → Groups data like SQL GROUP BY.
+✔ Range Aggregation → Groups based on number ranges (e.g., price, stock).
+✔ Stats Aggregation → Finds min, max, avg, sum.
+✔ Nested Aggregation → Combines multiple aggregations (e.g., GROUP BY + AVG).
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🔹 Step 7: OpenSearch APIs (Indexing, Searching, Updating, Deleting)
+📌 1. Index a Document (Add Data)
+The Index API stores a document in OpenSearch.
+
+🔍 Scenario: Add a new product (Apple iPhone 13).
+
+sh
+ 
+POST localhost:9200/products/_doc/1
+{
+  "name": "Apple iPhone 13",
+  "category": "smartphones",
+  "price": 799.99,
+  "stock": 50,
+  "created_at": "2024-03-01"
+}
+🔍 Expected Result
+json
+ 
+{
+  "_index": "products",
+  "_id": "1",
+  "result": "created"
+}
+✅ Explanation:
+
+Stores product data in index products with ID 1.
+"result": "created" confirms successful indexing.
+📌 2. Search Documents (Find Data)
+The Search API finds documents using queries.
+
+🔍 Scenario: Find all products in OpenSearch.
+
+sh
+ 
+GET localhost:9200/products/_search
+🔍 Expected Result
+json
+ 
+{
+  "hits": {
+    "total": 5,
+    "hits": [
+      { "_id": "1", "_source": { "name": "Apple iPhone 13", "price": 799.99 }},
+      { "_id": "2", "_source": { "name": "Samsung Galaxy S23", "price": 699.99 }},
+      { "_id": "3", "_source": { "name": "Dell XPS 15", "price": 1499.99 }},
+      { "_id": "4", "_source": { "name": "Sony WH-1000XM5", "price": 399.99 }},
+      { "_id": "5", "_source": { "name": "Logitech MX Master 3", "price": 99.99 }}
+    ]
+  }
+}
+✅ Explanation:
+
+Returns all products stored in OpenSearch.
+📌 3. Get a Specific Document by ID
+🔍 Scenario: Get details of product ID = 1.
+
+sh
+ 
+GET localhost:9200/products/_doc/1
+🔍 Expected Result
+json
+ 
+{
+  "_source": {
+    "name": "Apple iPhone 13",
+    "category": "smartphones",
+    "price": 799.99,
+    "stock": 50
+  }
+}
+✅ Explanation:
+
+Fetches a single product by its document ID.
+📌 4. Update a Document
+The Update API modifies an existing document.
+
+🔍 Scenario: Update stock of iPhone 13 from 50 → 45.
+
+sh
+ 
+POST localhost:9200/products/_update/1
+{
+  "doc": {
+    "stock": 45
+  }
+}
+🔍 Expected Result
+json
+ 
+{
+  "result": "updated"
+}
+✅ Explanation:
+
+Updates only the stock field (other fields remain unchanged).
+📌 5. Delete a Document
+🔍 Scenario: Remove the product ID = 5.
+
+sh
+ 
+DELETE localhost:9200/products/_doc/5
+🔍 Expected Result
+json
+ 
+{
+  "result": "deleted"
+}
+✅ Explanation:
+
+Removes the document permanently.
+📌 6. Delete an Index (Delete All Data)
+🔍 Scenario: Delete all products by removing the entire index.
+
+sh
+ 
+DELETE localhost:9200/products
+✅ Explanation:
+
+Deletes the entire products index (all documents inside it are removed).
+🔹 Summary
+✔ Index API → Stores documents in OpenSearch.
+✔ Search API → Finds all or specific documents.
+✔ Get API → Retrieves a document by ID.
+✔ Update API → Modifies an existing document.
+✔ Delete API → Removes a document or an entire index.
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🔹 OpenSearch APIs
+OpenSearch provides a RESTful API for interacting with data.
+It supports the following key APIs:
+
+1️⃣ Document APIs (CRUD Operations)
+API	Description	Example
+Index a Document	Adds or updates a document	PUT /products/_doc/1
+Get a Document	Retrieve a document by ID	GET /products/_doc/1
+Update a Document	Partial update of a document	POST /products/_update/1
+Delete a Document	Removes a document	DELETE /products/_doc/1
+Example: Indexing a Document
+sh
+ 
+PUT localhost:9200/products/_doc/1
+{
+  "name": "Laptop",
+  "category": "Electronics",
+  "price": 1200.99
+}
+Example: Retrieving a Document
+sh
+ 
+GET localhost:9200/products/_doc/1
+2️⃣ Search APIs
+API	Description	Example
+Simple Search	Find documents using queries	POST /products/_search
+Match Query	Full-text search	{ "query": { "match": { "name": "laptop" } } }
+Term Query	Exact match	{ "query": { "term": { "category": "electronics" } } }
+Range Query	Filter numeric values	{ "query": { "range": { "price": { "gte": 1000 } } } }
+Example: Full-Text Search
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "query": {
+    "match": {
+      "name": "laptop"
+    }
+  }
+}
+3️⃣ Aggregations API (Analytics & Grouping)
+API	Description	Example
+Terms Aggregation	Group by field values	{ "aggs": { "by_category": { "terms": { "field": "category.keyword" } } } }
+Range Aggregation	Group data into numeric ranges	{ "aggs": { "price_ranges": { "range": { "field": "price", "ranges": [{ "to": 500 }, { "from": 500, "to": 1000 }, { "from": 1000 }] } } } }
+Average Aggregation	Get the average of a field	{ "aggs": { "avg_price": { "avg": { "field": "price" } } } }
+Example: Count Products by Category
+sh
+ 
+POST localhost:9200/products/_search
+{
+  "size": 0,
+  "aggs": {
+    "category_count": {
+      "terms": {
+        "field": "category.keyword"
+      }
+    }
+  }
+}
+4️⃣ Index Management APIs
+API	Description	Example
+Create an Index	Defines a new index	PUT /products
+Delete an Index	Removes an index	DELETE /products
+Get Index Details	Shows index settings and mappings	GET /products
+Example: Creating an Index with Custom Mapping
+sh
+ 
+PUT localhost:9200/products
+{
+  "mappings": {
+    "properties": {
+      "name": { "type": "text" },
+      "category": { "type": "keyword" },
+      "price": { "type": "double" }
+    }
+  }
+}
+5️⃣ Cluster & Node APIs
+API	Description	Example
+Get Cluster Health	Shows cluster status	GET /_cluster/health
+Get Node Stats	Fetches node performance data	GET /_nodes/stats
+Example: Check Cluster Health
+sh
+ 
+GET localhost:9200/_cluster/health
+🔹 When to Use OpenSearch?
+✅ Log analytics – Centralized logging for applications.
+✅ Full-text search – Searching documents, products, or knowledge bases.
+✅ Monitoring & observability – Tracking metrics, logs, and traces.
+✅ E-commerce & recommendations – Search and filter products.
+✅ Security monitoring – Detecting anomalies and threats.
+
+🔹 OpenSearch vs. Elasticsearch
+Feature	OpenSearch	Elasticsearch
+License	Open-source (Apache 2.0)	Proprietary (Elastic License 2.0)
+API Compatibility	Compatible with ES 7.10	Proprietary changes in newer versions
+Security	Built-in RBAC, TLS, OIDC, LDAP	Requires paid X-Pack
+Dashboards	OpenSearch Dashboards	Kibana
+Machine Learning	Free anomaly detection	Paid ML features
+🔹 Conclusion
+🚀 OpenSearch is a powerful search and analytics engine that supports:
+✅ Full-text search (match, term, fuzzy, wildcard).
+✅ Aggregations for analytics (terms, range, metrics).
+✅ Scalability with distributed indexing.
+✅ Security & observability features.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🔹 Step 8: Integrating OpenSearch with Spring Boot
+📌 1. Add Dependencies
+First, add the OpenSearch Java Client and Spring Boot Starter Web dependencies to your pom.xml.
+
+xml
+ 
+<dependencies>
+    <!-- OpenSearch Java Client -->
+    <dependency>
+        <groupId>org.opensearch.client</groupId>
+        <artifactId>opensearch-java</artifactId>
+        <version>2.9.0</version>
+    </dependency>
+
+    <!-- Spring Boot Starter Web -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+</dependencies>
+✅ Explanation:
+
+opensearch-java → Connects Spring Boot to OpenSearch.
+spring-boot-starter-web → Creates REST APIs in Spring Boot.
+📌 2. Configure OpenSearch Client
+Create a configuration class to connect Spring Boot to OpenSearch.
+
+📌 OpenSearchConfig.java
+
+java
+ 
+import org.opensearch.client.RestClient;
+import org.opensearch.client.RestHighLevelClient;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class OpenSearchConfig {
+
+    @Bean
+    public RestHighLevelClient openSearchClient() {
+        return new RestHighLevelClient(
+            RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+    }
+}
+✅ Explanation:
+
+Connects to OpenSearch running at http://localhost:9200.
+Creates an OpenSearch client bean for use in Spring Boot.
+📌 3. Create an Entity (Product Model)
+📌 Product.java
+
+java
+ 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Product {
+    private String id;
+    private String name;
+    private String category;
+    private double price;
+    private int stock;
+}
+✅ Explanation:
+
+Defines a Product model with ID, name, category, price, and stock.
+Uses Lombok annotations (@Data, @AllArgsConstructor, @NoArgsConstructor) to generate getters, setters, and constructors.
+📌 4. Create a Repository (Product Service)
+📌 ProductService.java
+
+java
+ 
+import org.opensearch.client.Request;
+import org.opensearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.io.IOException;
+
+@Service
+public class ProductService {
+
+    @Autowired
+    private RestHighLevelClient openSearchClient;
+
+    // Index a new product
+    public String saveProduct(Product product) throws IOException {
+        String json = "{ \"name\": \"" + product.getName() + "\", " +
+                      "\"category\": \"" + product.getCategory() + "\", " +
+                      "\"price\": " + product.getPrice() + ", " +
+                      "\"stock\": " + product.getStock() + " }";
+
+        Request request = new Request("POST", "/products/_doc/" + product.getId());
+        request.setJsonEntity(json);
+        openSearchClient.getLowLevelClient().performRequest(request);
+
+        return "Product indexed successfully!";
+    }
+}
+✅ Explanation:
+
+saveProduct() → Indexes a new product in OpenSearch.
+📌 5. Create a REST Controller
+📌 ProductController.java
+
+java
+ 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.io.IOException;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+    @Autowired
+    private ProductService productService;
+
+    @PostMapping
+    public String addProduct(@RequestBody Product product) throws IOException {
+        return productService.saveProduct(product);
+    }
+}
+✅ Explanation:
+
+Defines a REST API (/products) to index new products.
+Calls ProductService to save data in OpenSearch.
+📌 6. Run and Test the API
+Run your Spring Boot application and send a POST request using Postman or curl.
+
+sh
+ 
+curl -X POST "http://localhost:8080/products" -H "Content-Type: application/json" -d '{
+  "id": "1",
+  "name": "Apple iPhone 13",
+  "category": "smartphones",
+  "price": 799.99,
+  "stock": 50
+}'
+Expected Response
+json
+ 
+"Product indexed successfully!"
+✅ Explanation:
+
+Indexes the product into OpenSearch via Spring Boot API.
+🔹 Summary
+✔ Step 1 → Add opensearch-java dependency.
+✔ Step 2 → Configure RestHighLevelClient in OpenSearchConfig.java.
+✔ Step 3 → Create a Product model.
+✔ Step 4 → Implement ProductService for indexing.
+✔ Step 5 → Create ProductController to expose REST APIs.
+✔ Step 6 → Run and test the API.
+
+📌 Next, we will implement Search and Update APIs in Spring Boot!
+Let me know if you have any doubts before moving forward. 🚀
+
+
+You said:
+next
+ChatGPT said:
+Memory updated
+Awesome! Now, let's implement Search and Update APIs in Spring Boot. 🚀
+
+🔹 Step 9: Implement Search & Update APIs in Spring Boot
+📌 1. Implement Search API
+We will create an API to search products by name or category.
+
+📌 ProductService.java (Add search method)
+
+java
+ 
+import org.opensearch.client.Request;
+import org.opensearch.client.Response;
+import org.opensearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.io.IOException;
+
+@Service
+public class ProductService {
+
+    @Autowired
+    private RestHighLevelClient openSearchClient;
+
+    // Search products by name or category
+    public String searchProducts(String keyword) throws IOException {
+        String queryJson = "{ \"query\": { \"multi_match\": { \"query\": \"" + keyword + "\", \"fields\": [\"name\", \"category\"] } } }";
+
+        Request request = new Request("POST", "/products/_search");
+        request.setJsonEntity(queryJson);
+        Response response = openSearchClient.getLowLevelClient().performRequest(request);
+
+        return new String(response.getEntity().getContent().readAllBytes());
+    }
+}
+✅ Explanation:
+
+Uses multi_match query to search by name or category.
+Calls OpenSearch _search API to get matching documents.
+📌 2. Create Search API Endpoint
+📌 ProductController.java (Add search API)
+
+java
+ 
+import org.springframework.web.bind.annotation.*;
+import java.io.IOException;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+    @Autowired
+    private ProductService productService;
+
+    @GetMapping("/search")
+    public String searchProducts(@RequestParam String keyword) throws IOException {
+        return productService.searchProducts(keyword);
+    }
+}
+✅ Explanation:
+
+Exposes a GET API /products/search?keyword=phone to search products.
+📌 3. Test Search API
+Run your Spring Boot app and test with curl or Postman:
+
+sh
+ 
+curl -X GET "http://localhost:8080/products/search?keyword=phone"
+🔍 Expected Response
+json
+ 
+{
+  "hits": {
+    "total": 2,
+    "hits": [
+      { "_source": { "name": "Apple iPhone 13", "category": "smartphones", "price": 799.99 }},
+      { "_source": { "name": "Samsung Galaxy S23", "category": "smartphones", "price": 699.99 }}
+    ]
+  }
+}
+✅ Explanation:
+
+Searches for products containing "phone" in name or category.
+📌 4. Implement Update API
+We will create an API to update a product’s price.
+
+📌 ProductService.java (Add update method)
+
+java
+ 
+public String updateProductPrice(String id, double newPrice) throws IOException {
+    String updateJson = "{ \"doc\": { \"price\": " + newPrice + " } }";
+
+    Request request = new Request("POST", "/products/_update/" + id);
+    request.setJsonEntity(updateJson);
+    Response response = openSearchClient.getLowLevelClient().performRequest(request);
+
+    return new String(response.getEntity().getContent().readAllBytes());
+}
+✅ Explanation:
+
+Uses OpenSearch _update API to update only the price field.
+📌 5. Create Update API Endpoint
+📌 ProductController.java (Add update API)
+
+java
+ 
+@PatchMapping("/{id}/price")
+public String updateProductPrice(@PathVariable String id, @RequestParam double newPrice) throws IOException {
+    return productService.updateProductPrice(id, newPrice);
+}
+✅ Explanation:
+
+Calls ProductService to update the price of a product by ID.
+📌 6. Test Update API
+Run your Spring Boot app and test with curl or Postman:
+
+sh
+ 
+curl -X PATCH "http://localhost:8080/products/1/price?newPrice=849.99"
+🔍 Expected Response
+json
+ 
+{
+  "result": "updated"
+}
+✅ Explanation:
+
+Updates the price of the product with ID = 1.
+🔹 Summary
+✔ Implemented Search API (GET /products/search?keyword=phone)
+✔ Implemented Update API (PATCH /products/{id}/price?newPrice=849.99)
+
+📌 Next, we will implement Delete API and Pagination!
+Let me know if you have any doubts before moving forward. 🚀
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+package com.paytm.rc.aggregator.service.impl;
+
+import com.paytm.rc.aggregator.Util.ValueConverter;
+import com.paytm.rc.aggregator.common.struct.accounting.RcrContract;
+import com.paytm.rc.aggregator.config.OpenSearchClientConfig;
+import com.paytm.rc.aggregator.dao.mysql.mapper.connectorMapper.ConnectorMapper;
+import com.paytm.rc.aggregator.dao.opensearch.impl.BooleanQueryImpl;
+import com.paytm.rc.aggregator.exception.AggregatorException;
+import com.paytm.rc.aggregator.helper.IGenericHelper;
+import com.paytm.rc.aggregator.kafka.producer.KafkaEventProducer;
+import com.paytm.rc.aggregator.model.*;
+import com.paytm.rc.aggregator.model.db.ConnectorFileStatusModel;
+import com.paytm.rc.aggregator.model.files.ConnectorFileModel;
+import com.paytm.rc.aggregator.prometheus.config.PrometheusMetricClient;
+import com.paytm.rc.aggregator.prometheus.constant.MetricCounterConstants;
+import com.paytm.rc.aggregator.prometheus.counter.MetricKeys;
+import com.paytm.rc.aggregator.service.FileAggregationImplMIS;
+import com.paytm.rc.aggregator.service.IGenericRestService;
+import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.QueryBuilders;
+import org.opensearch.search.aggregations.AggregationBuilder;
+import org.opensearch.search.aggregations.metrics.SumAggregationBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@Slf4j
+public class GenericRestServiceImpl implements IGenericRestService {
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+
+    @Autowired
+    BooleanQueryImpl queryImpl;
+    @Value("${autoCorrect.boAutoRefund.days.count}")
+    private int autoCorrectBOAutoRefundDays;
+    @Value("${autocorrect.index}")
+    private String[] indexName;
+    @Value("${kafka.failTransactionsAutoCorrectTopic}")
+    private String failTransactionsTopic;
+    @Value("${kafkaProducerTopicForTransactionDateAuto-Correct}")
+    private String producerTopic;
+    @Autowired
+    private AutoCorrectDataRequest request;
+    @Autowired
+    private IGenericHelper genericHelper;
+    @Autowired
+    KafkaEventProducer producer;
+    @Autowired
+    private OpenSearchClientConfig openSearchClientConfig;
+    @Autowired
+    private FileAggregationImplMIS misImpl;
+
+    @Autowired
+    PrometheusMetricClient prometheusMetricClient;
+
+    @Autowired
+    ConnectorMapper connectorMapper;
+
+    @Override
+    public SortedMap<String, TransactionDateAggregationResponse> generateTransactionDateAggregatedDataForOthers(TransactionDateAggregationRequest request, String accountType){
+        log.info("Inside generateTransactionDateAggregatedDataForOthers method");
+        SortedMap<String, TransactionDateAggregationResponse> finalResponseOthers = new TreeMap<>();
+        try{
+            // original code
+            LocalDate startDate = LocalDate.parse(request.getStartDate(), DateTimeFormatter.ofPattern(DATE_FORMAT));
+            LocalDate endDate = LocalDate.parse(request.getEndDate(), DateTimeFormatter.ofPattern(DATE_FORMAT));
+            RestHighLevelClient client = openSearchClientConfig.clientConfig();
+            String[] indexesToScanData = Arrays.stream(indexName).toArray(String[]::new);
+            SearchRequest searchRequestSourceA = new SearchRequest(indexesToScanData);
+            SearchRequest searchRequestSourceB = new SearchRequest(indexesToScanData);
+            SearchSourceBuilder searchSourceBuilderSourceA = new SearchSourceBuilder().size(10000);
+            SearchSourceBuilder searchSourceBuilderSourceB = new SearchSourceBuilder().size(10000);
+
+            String[] includeSourceAFieldsResponse = new String[]{"transactionDate", "sourceAId", "sourceBId","reconStatus", "sourceA.f1-external_serial_no","sourceA.f1-payment_amount"};
+            BoolQueryBuilder boolQueryForSourceA = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryForSourceAId = new BoolQueryBuilder();
+            boolQueryForSourceAId.should(QueryBuilders.termQuery("sourceAId.keyword", request.getSourceId()));
+            BoolQueryBuilder boolQueryForTransactionDate = new BoolQueryBuilder();
+            boolQueryForTransactionDate.should(QueryBuilders.rangeQuery("transactionDate").gte(startDate).lte(endDate));
+            BoolQueryBuilder boolQueryBuilderForSourceAExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceAExist.should(QueryBuilders.existsQuery("sourceA.sourceId.keyword"));
+            boolQueryForSourceA.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceAExist));
+
+
+            AggregationBuilder sourceAPaymentAmount = new SumAggregationBuilder("sourceA_payment_amount")
+                    .field("sourceA.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceA = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceA.subAggregation(sourceAPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceA = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceA);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceA = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceA);
+            searchSourceBuilderSourceA.query(boolQueryForSourceA);
+            searchSourceBuilderSourceA.aggregation(termTransactionDateAggregationBuilderSourceA);
+            searchSourceBuilderSourceA.fetchSource(includeSourceAFieldsResponse,null);
+            searchRequestSourceA.source(searchSourceBuilderSourceA);
+            SearchResponse responseA = client.search(searchRequestSourceA, RequestOptions.DEFAULT);
+            if(responseA.getHits().getTotalHits().value <= 0) {
+                prometheusMetricClient.increment(MetricCounterConstants.EXCEPTION_COUNT, MetricKeys.SERVICE_NAME, MetricKeys.OPEN_SEARCH_DATA_NOT_EXIST_FOR_SOURCEA_TRANSACTION_DATE_AUTOCORRECT);
+                throw new AggregatorException("NO RECORD FOUND FOR SOURCE A", "no record found for given parameters in open search");
+            }
+
+            // sourceB response
+            String[] includeSourceBFieldsResponse = Arrays.stream(includeSourceAFieldsResponse).map(field -> {
+                        if (field.equals("sourceA.f1-external_serial_no")) {
+                            return "sourceB.f1-external_serial_no";
+                        } else if (field.equals("sourceA.f1-payment_amount")) {
+                            return "sourceB.f1-payment_amount";
+                        }
+                        return field;
+            }).toArray(String[]::new);
+
+            BoolQueryBuilder boolQueryForSourceB = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryBuilderForSourceBExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceBExist.should(QueryBuilders.existsQuery("sourceB.sourceId.keyword"));
+            boolQueryForSourceB.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceBExist));
+            AggregationBuilder sourceBPaymentAmount = new SumAggregationBuilder("sourceB_payment_amount")
+                    .field("sourceB.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceB = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceB.subAggregation(sourceBPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceB = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceB);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceB = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceB);
+            searchSourceBuilderSourceB.query(boolQueryForSourceB);
+            searchSourceBuilderSourceB.aggregation(termTransactionDateAggregationBuilderSourceB);
+            searchSourceBuilderSourceB.fetchSource(includeSourceBFieldsResponse, null);
+            searchRequestSourceB.source(searchSourceBuilderSourceB);
+            SearchResponse responseB = client.search(searchRequestSourceB, RequestOptions.DEFAULT);
+            if(responseB.getHits().getTotalHits().value <= 0) {
+                prometheusMetricClient.increment(MetricCounterConstants.EXCEPTION_COUNT, MetricKeys.SERVICE_NAME, MetricKeys.OPEN_SEARCH_DATA_NOT_EXIST_FOR_SOURCEB_TRANSACTION_DATE_AUTOCORRECT);
+                throw new AggregatorException("NO RECORD FOUND FOR SOURCE B", "no record found for given parameters in open search");
+            }
+
+
+
+            Map<String, List<Map<String,Object>>> sourceA = genericHelper.generateDataForSourceA(0, responseA);
+            Map<String, List<Map<String,Object>>> sourceB = genericHelper.generateDataForSourceB(0, responseB);
+            finalResponseOthers = genericHelper.generateTransactionDateResponse(sourceA, sourceB, accountType);
+            sendDataToKafka(finalResponseOthers);
+
+        } catch (Exception e) {
+            log.error("Exception in fetching response from open search {}", e.getMessage());
+        }
+        return finalResponseOthers;
+    }
+
+    @Override
+    public void autoCorrectBOAutoRefund() {
+        log.info("Inside autoCorrectBOAutoRefund");
+        try {
+            String sourceAPrefix = "BO_Auto_Refund_Src-A";
+            String sourceBPrefix = "BO_Auto_Refund_Src-B";
+            List<RcrContract> openSearchData = new ArrayList<>();
+            LocalDate startDate = LocalDate.now().minusDays(autoCorrectBOAutoRefundDays);
+            LocalDate endDate = LocalDate.now();
+            request.setStartDate(startDate.format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
+            request.setEndDate(endDate.format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
+            List<String> fileNames = genericHelper.generateFileNames(sourceAPrefix, sourceBPrefix, startDate, endDate);
+            List<ConnectorFileModel> convertingBoDataToConnectorModel = genericHelper.convertData(fileNames);
+            if(convertingBoDataToConnectorModel!= null && convertingBoDataToConnectorModel.size()>0) {
+                genericHelper.fetchFromOS(convertingBoDataToConnectorModel, openSearchData);
+            }
+        } catch (Exception e) {
+            log.warn("Error in connecting to aggregate summary table");
+        }
+    }
+
+    public SortedMap<String, FailTransactionAggregationResponse> generateFailTransactionAggregatedData(FailTransactionAggregationRequest request){
+        log.info("Inside generateFailTransactionAggregatedData method");
+        SortedMap<String, FailTransactionAggregationResponse> finalResponse = new TreeMap<>();
+        try{
+            List<ConnectorFileStatusModel> connectorFileModel = connectorMapper.selectFileStatusOnUploadDate(request.getStartDate(), request.getEndDate());
+            RestHighLevelClient client = openSearchClientConfig.clientConfig();
+            SearchRequest searchRequest = new SearchRequest("we-fail-index*");
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder().size(10000);
+            BoolQueryBuilder boolQuery = new BoolQueryBuilder();
+            List<Object> fileNames =connectorFileModel.stream()
+                    .map(ConnectorFileStatusModel::getFileName)
+                    .collect(Collectors.toList());
+
+            boolQuery = queryImpl.mustTermsQuery(boolQuery, "fail_message.keyword", ValueConverter.convertStringArIntoObjectList("DF|RF|ENF|IREFBO|EMREBO|REDMBO|ADDREFREC|DUPESN".split("\\|")).toArray());
+
+            boolQuery = queryImpl.mustNotTermsQuery(boolQuery, "metaData.sourceId.keyword", ValueConverter.convertStringArIntoObjectList("PDR|RDR".split("\\|")).toArray());
+
+            boolQuery = queryImpl.mustTermsQuery(boolQuery, "metaData.fileName.keyword",fileNames.toArray() );
+
+            boolQuery=queryImpl.existQuery(boolQuery,"metaData.retryCount");
+
+            boolQuery = queryImpl.mustNotTermsQuery(boolQuery, "accountType.keyword", ValueConverter.convertStringArIntoObjectList("postpaid".split("\\|")).toArray());
+
+            AggregationBuilder failTransactionAmount = new SumAggregationBuilder("failTransactionAmount")
+                    .field("metaData.f1-payment_amount");
+
+            AggregationBuilder termRetryCountAggregationBuilder = misImpl.termAggregationBuilder("retryCount", "metaData.retryCount")
+                    .subAggregation(failTransactionAmount);
+
+            AggregationBuilder termFileIdAggregationBuilder = misImpl.termAggregationBuilder("fileId",
+                    "metaData.fileId.keyword").subAggregation(termRetryCountAggregationBuilder);
+            AggregationBuilder termReconRuleIdAggregatorBuilder = misImpl.termAggregationBuilder("reconRuleId", "metaData.reconRuleId.keyword")
+                    .subAggregation(termFileIdAggregationBuilder);
+
+            AggregationBuilder termFileDateAggregationBuilder = misImpl.termAggregationBuilder("fileDate",
+                    "metaData.fileDate").subAggregation(termReconRuleIdAggregatorBuilder);
+
+
+
+            searchSourceBuilder.query(boolQuery);
+            searchSourceBuilder.aggregation(termFileDateAggregationBuilder);
+            searchRequest.source(searchSourceBuilder);
+            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+            if(response.getHits().getTotalHits().value <= 0) {
+//                prometheusMetricClient.increment(MetricCounterConstants.EXCEPTION_COUNT, MetricKeys.SERVICE_NAME, MetricKeys.OPEN_SEARCH_DATA_NOT_EXIST_FOR_TRANSACTION_DATE_AUTOCORRECT);
+                throw new AggregatorException("NO RECORD FOUND FOR TRANSACTION DATE", "no record found for given parameters in open search");
+            }
+            Map<String, List<Map<String,Object>>> sourceMap = genericHelper.generateDataForFailTransactions( response, connectorFileModel);
+            finalResponse = genericHelper.generateFailTransactionResponse(sourceMap);
+            sendDataToKafkaForFailTransaction(finalResponse);
+        } catch (Exception e) {
+            log.error("Exception in fetching response from open search {}", e.getMessage());
+        }
+        return finalResponse;
+    }
+    public List<SortedMap<String, TransactionDateAggregationResponse>> generateTransactionDateAggregatedDataForPostpaid(TransactionDateAggregationRequest request, String accountType){
+        log.info("Inside generateTransactionDateAggregatedDataForPostpaid method");
+        List<SortedMap<String, TransactionDateAggregationResponse>> finalResponsePostPaid = new ArrayList<>();
+
+        try{
+            LocalDate startDate = LocalDate.parse(request.getStartDate(), DateTimeFormatter.ofPattern(DATE_FORMAT));
+            LocalDate endDate = LocalDate.parse(request.getEndDate(), DateTimeFormatter.ofPattern(DATE_FORMAT));
+            RestHighLevelClient client = openSearchClientConfig.clientConfig();
+
+            misFileAggregationWithDirectSettlement(request, startDate, endDate, client, finalResponsePostPaid, accountType);
+            misFileAggregationWithKnockedOff(request, startDate, endDate, client, finalResponsePostPaid, accountType);
+            misFileAggregationWithKnockedOffPending(request, startDate, endDate, client, finalResponsePostPaid, accountType);
+            misFileAggregationWithPaymentFailed(request, startDate, endDate, client, finalResponsePostPaid,accountType);
+            misFileAggregationWithRefundFailed(request, startDate, endDate, client, finalResponsePostPaid, accountType);
+            misFileAggregationNormalAggregation(request, startDate, endDate, client, finalResponsePostPaid, accountType);
+
+
+            sendDataToKafkaForPostPaid(finalResponsePostPaid);
+
+        }catch(Exception e){
+            log.error("Exception in fetching response from open search {}", e.getMessage());
+        }
+        return finalResponsePostPaid;
+    }
+
+    private void sendDataToKafka(SortedMap<String, TransactionDateAggregationResponse> finalResponse) {
+        for(String key : finalResponse.keySet()) {
+            TransactionDateAggregationResponse response = finalResponse.get(key);
+            producer.sendMessage(key, new JSONObject(response).toString(), producerTopic);
+        }
+    }
+
+    private void sendDataToKafkaForPostPaid(List<SortedMap<String, TransactionDateAggregationResponse>> finalResponse) {
+        for(SortedMap<String, TransactionDateAggregationResponse> map : finalResponse) {
+            for(String key : map.keySet()) {
+                TransactionDateAggregationResponse response = map.get(key);
+                producer.sendMessage(key, new JSONObject(response).toString(), producerTopic);
+            }
+        }
+    }
+
+    private void sendDataToKafkaForFailTransaction(SortedMap<String, FailTransactionAggregationResponse> finalResponse) {
+        for(String key : finalResponse.keySet()) {
+            FailTransactionAggregationResponse response = finalResponse.get(key);
+            producer.sendMessage(key, new JSONObject(response).toString(), failTransactionsTopic);
+        }
+    }
+
+
+
+    private void misFileAggregationWithDirectSettlement(TransactionDateAggregationRequest request, LocalDate startDate, LocalDate endDate,
+                                                  RestHighLevelClient client, List<SortedMap<String, TransactionDateAggregationResponse>> finalResponsePostPaid, String accountType)throws  Exception{
+        try {
+            log.info("Inside misFileAggregationWithDirectSettlement method");
+            SortedMap<String, TransactionDateAggregationResponse> finalResponseADirectSettlement = new TreeMap<>();
+            SearchRequest searchRequestSourceA_DS = new SearchRequest(indexName);
+            SearchSourceBuilder searchSourceBuilderSourceA_DS = new SearchSourceBuilder().size(10000);
+
+            SearchRequest searchRequestSourceB_DS = new SearchRequest(indexName);
+            SearchSourceBuilder searchSourceBuilderSourceB_DS = new SearchSourceBuilder().size(10000);
+
+            BoolQueryBuilder boolQueryForSourceA = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryForSourceAId = new BoolQueryBuilder();
+            boolQueryForSourceAId.should(QueryBuilders.termQuery("sourceAId.keyword", request.getSourceId()));
+            BoolQueryBuilder boolQueryForTransactionDate = new BoolQueryBuilder();
+            boolQueryForTransactionDate.should(QueryBuilders.rangeQuery("transactionDate").gte(startDate).lte(endDate));
+            BoolQueryBuilder boolQueryBuilderForSourceAExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceAExist.should(QueryBuilders.existsQuery("sourceA.sourceId.keyword"));
+            BoolQueryBuilder boolQueryForDirectSettlement = misBoolQueryForDirectSettlement();
+            boolQueryForSourceA.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceAExist).must(boolQueryForDirectSettlement));
+
+            AggregationBuilder sourceAPaymentAmount = new SumAggregationBuilder("sourceA_payment_amount")
+                    .field("sourceA.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceA = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceA.subAggregation(sourceAPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceA = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceA);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceA = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceA);
+            searchSourceBuilderSourceA_DS.query(boolQueryForSourceA);
+            searchSourceBuilderSourceA_DS.aggregation(termTransactionDateAggregationBuilderSourceA);
+            searchRequestSourceA_DS.source(searchSourceBuilderSourceA_DS);
+
+            SearchResponse responseA = client.search(searchRequestSourceA_DS, RequestOptions.DEFAULT);
+
+            if(responseA.getHits().getTotalHits().value < 0) {
+                throw new Exception("NO RECORD FOUND FOR SOURCE A isInstantSettlement true condition");
+            }
+
+
+            //source B response
+
+            BoolQueryBuilder boolQueryForSourceB = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryBuilderForSourceBExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceBExist.should(QueryBuilders.existsQuery("sourceB.sourceId.keyword"));
+            boolQueryForSourceB.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceBExist).must(boolQueryForDirectSettlement));
+
+            AggregationBuilder sourceBPaymentAmount = new SumAggregationBuilder("sourceB_payment_amount")
+                    .field("sourceB.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceB = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceB.subAggregation(sourceBPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceB = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceB);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceB = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceB);
+            searchSourceBuilderSourceB_DS.query(boolQueryForSourceB);
+            searchSourceBuilderSourceB_DS.aggregation(termTransactionDateAggregationBuilderSourceB);
+            searchRequestSourceB_DS.source(searchSourceBuilderSourceB_DS);
+
+            SearchResponse responseB = client.search(searchRequestSourceB_DS, RequestOptions.DEFAULT);
+
+            if(responseB.getHits().getTotalHits().value < 0) {
+                throw new Exception("NO RECORD FOUND FOR SOURCE B, no record found for given parameters in open search");
+            }
+
+
+            Map<String, List<Map<String,Object>>> sourceA = genericHelper.generateDataForSourceA(1,responseA);
+            Map<String, List<Map<String,Object>>> sourceB = genericHelper.generateDataForSourceB(1, responseB);
+            finalResponseADirectSettlement = genericHelper.generateTransactionDateResponse(sourceA, sourceB,accountType);
+            finalResponsePostPaid.add(finalResponseADirectSettlement);
+
+        }catch (Exception e){
+            log.info("No records exists in OS for isInstantSettlement true condition");
+        }
+    }
+
+
+
+
+    private void misFileAggregationWithKnockedOff(TransactionDateAggregationRequest request, LocalDate startDate, LocalDate endDate,
+                                                  RestHighLevelClient client, List<SortedMap<String, TransactionDateAggregationResponse>> finalResponsePostPaid, String accountType)throws  Exception{
+        try {
+            log.info("Inside misFileAggregationWithKnockedOff method");
+            SortedMap<String, TransactionDateAggregationResponse> finalResponseAKnockedOff = new TreeMap<>();
+            SearchRequest searchRequestSourceA1 = new SearchRequest(indexName);
+            SearchSourceBuilder searchSourceBuilderSourceA1 = new SearchSourceBuilder().size(10000);
+
+            BoolQueryBuilder boolQueryForSourceA = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryForSourceAId = new BoolQueryBuilder();
+            boolQueryForSourceAId.should(QueryBuilders.termQuery("sourceAId.keyword", request.getSourceId()));
+            BoolQueryBuilder boolQueryForTransactionDate = new BoolQueryBuilder();
+            boolQueryForTransactionDate.should(QueryBuilders.rangeQuery("transactionDate").gte(startDate).lte(endDate));
+            BoolQueryBuilder boolQueryBuilderForSourceAExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceAExist.should(QueryBuilders.existsQuery("sourceA.sourceId.keyword"));
+            BoolQueryBuilder boolQueryForKnockOff = misBoolQueryForKnockedOff();
+//            BoolQueryBuilder boolQueryForKnockOffPending = misBoolQueryForKnockedOffPending();
+            boolQueryForSourceA.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceAExist).must(boolQueryForKnockOff));
+
+            AggregationBuilder sourceAPaymentAmount = new SumAggregationBuilder("sourceA_payment_amount")
+                    .field("sourceA.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceA = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceA.subAggregation(sourceAPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceA = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceA);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceA = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceA);
+            searchSourceBuilderSourceA1.query(boolQueryForSourceA);
+            searchSourceBuilderSourceA1.aggregation(termTransactionDateAggregationBuilderSourceA);
+            searchRequestSourceA1.source(searchSourceBuilderSourceA1);
+
+            SearchResponse responseA = client.search(searchRequestSourceA1, RequestOptions.DEFAULT);
+
+            if(responseA.getHits().getTotalHits().value < 0) {
+                throw new Exception("NO RECORD FOUND FOR SOURCE A isKnockedOff true condition");
+            }
+
+//            No result for source B here, hence passing Null to the function
+
+            Map<String, List<Map<String,Object>>> sourceA = genericHelper.generateDataForSourceA(2,responseA);
+            Map<String, List<Map<String,Object>>> sourceB = genericHelper.generateDataForSourceB(2, null);
+            finalResponseAKnockedOff = genericHelper.generateTransactionDateResponse(sourceA, sourceB,accountType);
+            finalResponsePostPaid.add(finalResponseAKnockedOff);
+
+        }catch (Exception e){
+            log.info("No records exists in OS for isKnockedOff true condition");
+        }
+    }
+
+    private void misFileAggregationWithKnockedOffPending(TransactionDateAggregationRequest request, LocalDate startDate, LocalDate endDate,
+                                                         RestHighLevelClient client, List<SortedMap<String, TransactionDateAggregationResponse>> finalResponsePostPaid, String accountType)throws  Exception{
+        try {
+            log.info("Inside misFileAggregationWithKnockedOffPending method");
+            SortedMap<String, TransactionDateAggregationResponse> finalResponseAKnockedOffPending = new TreeMap<>();
+            SearchRequest searchRequestSourceA2 = new SearchRequest(indexName);
+            SearchSourceBuilder searchSourceBuilderSourceA2 = new SearchSourceBuilder().size(10000);
+
+            BoolQueryBuilder boolQueryForSourceA = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryForSourceAId = new BoolQueryBuilder();
+            boolQueryForSourceAId.should(QueryBuilders.termQuery("sourceAId.keyword", request.getSourceId()));
+            BoolQueryBuilder boolQueryForTransactionDate = new BoolQueryBuilder();
+            boolQueryForTransactionDate.should(QueryBuilders.rangeQuery("transactionDate").gte(startDate).lte(endDate));
+            BoolQueryBuilder boolQueryBuilderForSourceAExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceAExist.should(QueryBuilders.existsQuery("sourceA.sourceId.keyword"));
+//            BoolQueryBuilder boolQueryForKnockOff = misBoolQueryForKnockedOff();
+            BoolQueryBuilder boolQueryForKnockOffPending = misBoolQueryForKnockedOffPending();
+            boolQueryForSourceA.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceAExist).must(boolQueryForKnockOffPending));
+
+            AggregationBuilder sourceAPaymentAmount = new SumAggregationBuilder("sourceA_payment_amount")
+                    .field("sourceA.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceA = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceA.subAggregation(sourceAPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceA = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceA);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceA = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceA);
+            searchSourceBuilderSourceA2.query(boolQueryForSourceA);
+            searchSourceBuilderSourceA2.aggregation(termTransactionDateAggregationBuilderSourceA);
+            searchRequestSourceA2.source(searchSourceBuilderSourceA2);
+
+            SearchResponse responseA = client.search(searchRequestSourceA2, RequestOptions.DEFAULT);
+
+            if(responseA.getHits().getTotalHits().value < 0) {
+                throw new Exception("NO RECORD FOUND FOR SOURCE A isKnockedOffPending true condition");
+            }
+
+//            No result for source B here, hence passing Null to the function
+
+            Map<String, List<Map<String,Object>>> sourceA = genericHelper.generateDataForSourceA(3,responseA);
+            Map<String, List<Map<String,Object>>> sourceB = genericHelper.generateDataForSourceB(3, null);
+            finalResponseAKnockedOffPending = genericHelper.generateTransactionDateResponse(sourceA, sourceB, accountType);
+            finalResponsePostPaid.add(finalResponseAKnockedOffPending);
+
+        }catch (Exception e){
+            log.info("No records exists in OS for isKnockedOffPending true condition");
+        }
+    }
+
+    private void misFileAggregationWithPaymentFailed(TransactionDateAggregationRequest request, LocalDate startDate, LocalDate endDate,
+                                                  RestHighLevelClient client, List<SortedMap<String, TransactionDateAggregationResponse>> finalResponsePostPaid, String accountType)throws  Exception{
+        try {
+            log.info("Inside misFileAggregationWithPaymentFailedOrRefundFailed method");
+            SortedMap<String, TransactionDateAggregationResponse> finalResponsePaymentFailed = new TreeMap<>();
+            SearchRequest searchRequestSourceA3 = new SearchRequest(indexName);
+            SearchSourceBuilder searchSourceBuilderSourceA3 = new SearchSourceBuilder().size(10000);
+
+            SearchRequest searchRequestSourceB3 = new SearchRequest(indexName);
+            SearchSourceBuilder searchSourceBuilderSourceB3 = new SearchSourceBuilder().size(10000);
+
+            BoolQueryBuilder boolQueryForSourceA = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryForSourceAId = new BoolQueryBuilder();
+            boolQueryForSourceAId.should(QueryBuilders.termQuery("sourceAId.keyword", request.getSourceId()));
+            BoolQueryBuilder boolQueryForTransactionDate = new BoolQueryBuilder();
+            boolQueryForTransactionDate.should(QueryBuilders.rangeQuery("transactionDate").gte(startDate).lte(endDate));
+            BoolQueryBuilder boolQueryBuilderForSourceAExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceAExist.should(QueryBuilders.existsQuery("sourceA.sourceId.keyword"));
+            BoolQueryBuilder boolQueryForPaymentFailed = misBoolQueryForPaymentFailed();
+            BoolQueryBuilder boolQueryForRefundFailed= misBoolQueryForRefundFailed();
+            boolQueryForSourceA.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceAExist).must(boolQueryForPaymentFailed)).mustNot(boolQueryForRefundFailed);
+
+            AggregationBuilder sourceAPaymentAmount = new SumAggregationBuilder("sourceA_payment_amount")
+                    .field("sourceA.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceA = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceA.subAggregation(sourceAPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceA = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceA);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceA = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceA);
+            searchSourceBuilderSourceA3.query(boolQueryForSourceA);
+            searchSourceBuilderSourceA3.aggregation(termTransactionDateAggregationBuilderSourceA);
+            searchRequestSourceA3.source(searchSourceBuilderSourceA3);
+            SearchResponse responseA = client.search(searchRequestSourceA3, RequestOptions.DEFAULT);
+
+            if(responseA.getHits().getTotalHits().value < 0) {
+                throw new Exception("NO RECORD FOUND FOR SOURCE A isKnockedOff true condition");
+            }
+
+
+//            source B code here
+
+            BoolQueryBuilder boolQueryForSourceB = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryBuilderForSourceBExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceBExist.should(QueryBuilders.existsQuery("sourceB.sourceId.keyword"));
+            boolQueryForSourceB.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceBExist).must(boolQueryForPaymentFailed)).mustNot(boolQueryForRefundFailed);
+
+            AggregationBuilder sourceBPaymentAmount = new SumAggregationBuilder("sourceB_payment_amount")
+                    .field("sourceB.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceB = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceB.subAggregation(sourceBPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceB = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceB);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceB = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceB);
+            searchSourceBuilderSourceB3.query(boolQueryForSourceB);
+            searchSourceBuilderSourceB3.aggregation(termTransactionDateAggregationBuilderSourceB);
+            searchRequestSourceB3.source(searchSourceBuilderSourceB3);
+            SearchResponse responseB = client.search(searchRequestSourceB3, RequestOptions.DEFAULT);
+
+            if(responseB.getHits().getTotalHits().value < 0) {
+                throw new Exception("NO RECORD FOUND FOR SOURCE B, no record found for given parameters in open search");
+            }
+
+
+
+            Map<String, List<Map<String,Object>>> sourceA = genericHelper.generateDataForSourceA(4, null);
+            Map<String, List<Map<String,Object>>> sourceB = genericHelper.generateDataForSourceB(4, responseB);
+            finalResponsePaymentFailed = genericHelper.generateTransactionDateResponse(sourceA, sourceB, accountType);
+            finalResponsePostPaid.add(finalResponsePaymentFailed);
+
+        }catch (Exception e){
+            log.info("No records exists in OS for payment failed condition");
+        }
+    }
+
+
+    private void misFileAggregationWithRefundFailed(TransactionDateAggregationRequest request, LocalDate startDate, LocalDate endDate,
+                                                                   RestHighLevelClient client, List<SortedMap<String, TransactionDateAggregationResponse>> finalResponsePostPaid, String accountType)throws  Exception{
+        try {
+            log.info("Inside misFileAggregationWithPaymentFailedOrRefundFailed method");
+            SortedMap<String, TransactionDateAggregationResponse> finalResponseRefundFailed = new TreeMap<>();
+            SearchRequest searchRequestSourceA4 = new SearchRequest(indexName);
+            SearchSourceBuilder searchSourceBuilderSourceA4 = new SearchSourceBuilder().size(10000);
+
+            SearchRequest searchRequestSourceB4 = new SearchRequest(indexName);
+            SearchSourceBuilder searchSourceBuilderSourceB4 = new SearchSourceBuilder().size(10000);
+
+            BoolQueryBuilder boolQueryForSourceA = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryForSourceAId = new BoolQueryBuilder();
+            boolQueryForSourceAId.should(QueryBuilders.termQuery("sourceAId.keyword", request.getSourceId()));
+            BoolQueryBuilder boolQueryForTransactionDate = new BoolQueryBuilder();
+            boolQueryForTransactionDate.should(QueryBuilders.rangeQuery("transactionDate").gte(startDate).lte(endDate));
+            BoolQueryBuilder boolQueryBuilderForSourceAExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceAExist.should(QueryBuilders.existsQuery("sourceA.sourceId.keyword"));
+            BoolQueryBuilder boolQueryForRefundFailed = misBoolQueryForRefundFailed();
+            boolQueryForSourceA.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceAExist).must(boolQueryForRefundFailed));
+
+            AggregationBuilder sourceAPaymentAmount = new SumAggregationBuilder("sourceA_payment_amount")
+                    .field("sourceA.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceA = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceA.subAggregation(sourceAPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceA = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceA);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceA = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceA);
+            searchSourceBuilderSourceA4.query(boolQueryForSourceA);
+            searchSourceBuilderSourceA4.aggregation(termTransactionDateAggregationBuilderSourceA);
+            searchRequestSourceA4.source(searchSourceBuilderSourceA4);
+            SearchResponse responseA = client.search(searchRequestSourceA4, RequestOptions.DEFAULT);
+
+            if(responseA.getHits().getTotalHits().value < 0) {
+                throw new Exception("NO RECORD FOUND FOR SOURCE A isKnockedOff true condition");
+            }
+
+
+//            source B code here
+
+            BoolQueryBuilder boolQueryForSourceB = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryBuilderForSourceBExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceBExist.should(QueryBuilders.existsQuery("sourceB.sourceId.keyword"));
+            boolQueryForSourceB.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceBExist).must(boolQueryForRefundFailed));
+
+            AggregationBuilder sourceBPaymentAmount = new SumAggregationBuilder("sourceB_payment_amount")
+                    .field("sourceB.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceB = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceB.subAggregation(sourceBPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceB = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceB);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceB = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceB);
+            searchSourceBuilderSourceB4.query(boolQueryForSourceB);
+            searchSourceBuilderSourceB4.aggregation(termTransactionDateAggregationBuilderSourceB);
+            searchRequestSourceB4.source(searchSourceBuilderSourceB4);
+            SearchResponse responseB = client.search(searchRequestSourceB4, RequestOptions.DEFAULT);
+
+            if(responseB.getHits().getTotalHits().value < 0) {
+                throw new Exception("NO RECORD FOUND FOR SOURCE B, no record found for given parameters in open search");
+            }
+
+
+
+            Map<String, List<Map<String,Object>>> sourceA = genericHelper.generateDataForSourceA(5, null);
+            Map<String, List<Map<String,Object>>> sourceB = genericHelper.generateDataForSourceB(5, responseB);
+            finalResponseRefundFailed = genericHelper.generateTransactionDateResponse(sourceA, sourceB, accountType);
+            finalResponsePostPaid.add(finalResponseRefundFailed);
+
+        }catch (Exception e){
+            log.info("No records exists in OS for refund failed  condition");
+        }
+    }
+
+
+    private void misFileAggregationNormalAggregation(TransactionDateAggregationRequest request, LocalDate startDate, LocalDate endDate,
+                                                                   RestHighLevelClient client, List<SortedMap<String, TransactionDateAggregationResponse>> finalResponsePostPaid, String accountType)throws  Exception{
+        try {
+            log.info("Inside misFileAggregationNormalAggregation method");
+            SortedMap<String, TransactionDateAggregationResponse> finalResponseNormalAggregation = new TreeMap<>();
+            SearchRequest searchRequestSourceA5 = new SearchRequest(indexName);
+            SearchSourceBuilder searchSourceBuilderSourceA5 = new SearchSourceBuilder().size(10000);
+
+            SearchRequest searchRequestSourceB5 = new SearchRequest(indexName);
+            SearchSourceBuilder searchSourceBuilderSourceB5 = new SearchSourceBuilder().size(10000);
+
+            BoolQueryBuilder boolQueryForSourceA = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryForSourceAId = new BoolQueryBuilder();
+            boolQueryForSourceAId.should(QueryBuilders.termQuery("sourceAId.keyword", request.getSourceId()));
+            BoolQueryBuilder boolQueryForTransactionDate = new BoolQueryBuilder();
+            boolQueryForTransactionDate.should(QueryBuilders.rangeQuery("transactionDate").gte(startDate).lte(endDate));
+            BoolQueryBuilder boolQueryBuilderForSourceAExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceAExist.should(QueryBuilders.existsQuery("sourceA.sourceId.keyword"));
+            BoolQueryBuilder boolQueryForKnockOff = misBoolQueryForKnockedOff();
+            BoolQueryBuilder boolQueryForKnockOffPending = misBoolQueryForKnockedOffPending();
+            BoolQueryBuilder boolQueryForPaymentFailed = misBoolQueryForPaymentFailed();
+            BoolQueryBuilder boolQueryForRefundFailed = misBoolQueryForRefundFailed();
+            BoolQueryBuilder boolQueryForDirectSettlement = misBoolQueryForDirectSettlement();
+            boolQueryForSourceA.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceAExist).mustNot(boolQueryForKnockOff).mustNot(boolQueryForKnockOffPending)
+                   .mustNot(boolQueryForDirectSettlement));
+
+            AggregationBuilder sourceAPaymentAmount = new SumAggregationBuilder("sourceA_payment_amount")
+                    .field("sourceA.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceA = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceA.subAggregation(sourceAPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceA = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceA);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceA = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceA);
+            searchSourceBuilderSourceA5.query(boolQueryForSourceA);
+            searchSourceBuilderSourceA5.aggregation(termTransactionDateAggregationBuilderSourceA);
+            searchRequestSourceA5.source(searchSourceBuilderSourceA5);
+            SearchResponse responseA = client.search(searchRequestSourceA5, RequestOptions.DEFAULT);
+
+            if(responseA.getHits().getTotalHits().value < 0) {
+                throw new Exception("NO RECORD FOUND FOR SOURCE A isKnockedOff true condition");
+            }
+
+
+//            source B code here
+
+            BoolQueryBuilder boolQueryForSourceB = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryBuilderForSourceBExist = new BoolQueryBuilder();
+            boolQueryBuilderForSourceBExist.should(QueryBuilders.existsQuery("sourceB.sourceId.keyword"));
+            boolQueryForSourceB.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceBExist).mustNot(boolQueryForKnockOff).mustNot(boolQueryForKnockOffPending)
+                    .mustNot(boolQueryForPaymentFailed).mustNot(boolQueryForRefundFailed).mustNot(boolQueryForDirectSettlement));
+
+            AggregationBuilder sourceBPaymentAmount = new SumAggregationBuilder("sourceB_payment_amount")
+                    .field("sourceB.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceB = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceB.subAggregation(sourceBPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceB = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceB);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceB = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceB);
+            searchSourceBuilderSourceB5.query(boolQueryForSourceB);
+            searchSourceBuilderSourceB5.aggregation(termTransactionDateAggregationBuilderSourceB);
+            searchRequestSourceB5.source(searchSourceBuilderSourceB5);
+            SearchResponse responseB = client.search(searchRequestSourceB5, RequestOptions.DEFAULT);
+
+            if(responseB.getHits().getTotalHits().value < 0) {
+                throw new Exception("NO RECORD FOUND FOR SOURCE B, no record found for given parameters in open search");
+            }
+
+            Map<String, List<Map<String,Object>>> sourceA = genericHelper.generateDataForSourceA(6, responseA);
+            Map<String, List<Map<String,Object>>> sourceB = genericHelper.generateDataForSourceB(6, responseB);
+            finalResponseNormalAggregation = genericHelper.generateTransactionDateResponse(sourceA, sourceB,accountType);
+            finalResponsePostPaid.add(finalResponseNormalAggregation);
+
+        }catch (Exception e){
+            log.info("No records exists in OS for normal flow condition");
+        }
+    }
+
+
+
+
+
+    private BoolQueryBuilder misBoolQueryForDirectSettlement() {
+        BoolQueryBuilder boolQueryForKnockedOff = new BoolQueryBuilder();
+        boolQueryForKnockedOff.should(QueryBuilders.termQuery("sourceB.instant_settlement",true));
+        return boolQueryForKnockedOff;
+    }
+
+    private BoolQueryBuilder misBoolQueryForKnockedOff() {
+        BoolQueryBuilder boolQueryForKnockedOff = new BoolQueryBuilder();
+        boolQueryForKnockedOff.should(QueryBuilders.termQuery("sourceA.isKnockedOffNew",true));
+        return boolQueryForKnockedOff;
+    }
+
+    private BoolQueryBuilder misBoolQueryForKnockedOffPending() {
+        BoolQueryBuilder boolQueryForKnockedOff = new BoolQueryBuilder();
+        boolQueryForKnockedOff.should(QueryBuilders.termQuery("sourceA.isKnockedOffPending",true));
+        return boolQueryForKnockedOff;
+    }
+
+    private BoolQueryBuilder misBoolQueryForPaymentFailed() {
+        BoolQueryBuilder boolQueryForPaymentFailed = new BoolQueryBuilder();
+        boolQueryForPaymentFailed.should(QueryBuilders.termQuery("sourceB.isPaymentFailed.keyword",true));
+        boolQueryForPaymentFailed.should(QueryBuilders.termQuery("sourceB.isFundBack.keyword",true));
+        boolQueryForPaymentFailed.minimumShouldMatch(1);
+        return boolQueryForPaymentFailed;
+    }
+
+    private BoolQueryBuilder misBoolQueryForRefundFailed() {
+        BoolQueryBuilder boolQueryForRefundFailed = new BoolQueryBuilder();
+        boolQueryForRefundFailed.should(QueryBuilders.termQuery("sourceB.isRefundFailed.keyword",true));
+        return boolQueryForRefundFailed;
+    }
+
+    private void sourceBResponseBuilder(TransactionDateAggregationRequest request, LocalDate startDate, LocalDate endDate, RestHighLevelClient client, SearchRequest searchRequestSourceB,
+                                        SearchSourceBuilder searchSourceBuilderSourceB, List<SearchResponse> searchResponsesB) throws Exception{
+        try {
+            BoolQueryBuilder boolQueryForSourceB = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryBuilderForSourceBExist = new BoolQueryBuilder();
+            BoolQueryBuilder boolQueryForSourceAId = new BoolQueryBuilder();
+            boolQueryForSourceAId.should(QueryBuilders.termQuery("sourceAId.keyword", request.getSourceId()));
+            BoolQueryBuilder boolQueryForTransactionDate = new BoolQueryBuilder();
+            boolQueryForTransactionDate.should(QueryBuilders.rangeQuery("transactionDate").gte(startDate).lte(endDate));
+
+            boolQueryBuilderForSourceBExist.should(QueryBuilders.existsQuery("sourceB.sourceId.keyword"));
+            boolQueryForSourceB.filter(QueryBuilders.boolQuery().must(boolQueryForSourceAId).must(boolQueryForTransactionDate)
+                    .must(boolQueryBuilderForSourceBExist));
+
+
+
+
+            AggregationBuilder sourceBPaymentAmount = new SumAggregationBuilder("sourceB_payment_amount")
+                    .field("sourceB.f1-payment_amount");
+            AggregationBuilder termReconStatusAggregatorBuilderSourceB = misImpl.termAggregationBuilder("reconStatus", "reconStatus.keyword");
+            termReconStatusAggregatorBuilderSourceB.subAggregation(sourceBPaymentAmount);
+            AggregationBuilder termRuleIdAggregatorBuilderSourceB = misImpl.termAggregationBuilder("ruleId", "reconRuleId.keyword")
+                    .subAggregation(termReconStatusAggregatorBuilderSourceB);
+            AggregationBuilder termTransactionDateAggregationBuilderSourceB = misImpl.termAggregationBuilder("transactionDate",
+                    "transactionDate").subAggregation(termRuleIdAggregatorBuilderSourceB);
+            searchSourceBuilderSourceB.query(boolQueryForSourceB);
+            searchSourceBuilderSourceB.aggregation(termTransactionDateAggregationBuilderSourceB);
+            searchRequestSourceB.source(searchSourceBuilderSourceB);
+            SearchResponse responseB = null;
+            try {
+                responseB = client.search(searchRequestSourceB, RequestOptions.DEFAULT);
+            } catch (Exception e) {
+                log.info("No records exists in OS for sourceB");
+            }
+            if (responseB != null && responseB.getHits().getTotalHits().value > 0) {
+                searchResponsesB.add(responseB);
+            }
+        } catch (Exception e){
+            log.info("No records exists in OS for sourceB");
+        }
+    }
+
+}
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+package com.paytm.rc.aggregator.dao.opensearch.impl;
+
+import com.paytm.rc.aggregator.config.OpenSearchClientConfig;
+import com.paytm.rc.aggregator.dao.opensearch.OpenSearchClientApiDao;
+import org.opensearch.action.search.ClearScrollRequest;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.action.search.SearchScrollRequest;
+import org.opensearch.client.RequestOptions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+@Controller
+public class OpenSearchClientApiDaoImpl implements OpenSearchClientApiDao {
+    @Autowired
+    private OpenSearchClientConfig openSearchClientConfig;
+
+    @Override
+    public SearchResponse searchApi(SearchRequest request) throws Exception{
+        try {
+            return openSearchClientConfig.getRestHighLevelClient().search(request, RequestOptions.DEFAULT);
+        }
+        catch(Exception ex){
+            throw new Exception(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void clearScrollApi(ClearScrollRequest request) throws Exception{
+        try {
+             openSearchClientConfig.getRestHighLevelClient().clearScroll(request, RequestOptions.DEFAULT);
+        }
+        catch(Exception ex){
+            throw new Exception(ex.getMessage());
+        }
+    }
+
+    @Override
+    public SearchResponse scrollApi(SearchScrollRequest request) throws Exception{
+        try {
+           return openSearchClientConfig.getRestHighLevelClient().scroll(request, RequestOptions.DEFAULT);
+        }
+        catch(Exception ex){
+            throw new Exception(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void closeRestClient() throws Exception{
+        try {
+             openSearchClientConfig.getRestHighLevelClient().close();
+        }
+        catch(Exception ex){
+            throw new Exception(ex.getMessage());
+        }
+    }
+}
+
+
+
+
+ public RestHighLevelClient clientConfig() {
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(opensourceCredentialsNameKey, opensourceCredentialsPasswordKey));
+        RestClientBuilder builder = RestClient.builder(new HttpHost(openSourceHost, -1, "https"))
+                .setHttpClientConfigCallback(httpClientBuilder -> {
+                    RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(socketTimeOut).build();
+                    return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+                            .setDefaultRequestConfig(requestConfig);
+                })
+                .setDefaultHeaders(new Header[]{new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json")});
+        return new RestHighLevelClient(builder);
+    }
+
+
+
+public RestHighLevelClient getRestHighLevelClient() {
+        return client;
+    }
+
+
+
+
+
+
+
